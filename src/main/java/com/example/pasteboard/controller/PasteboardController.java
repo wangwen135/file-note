@@ -4,7 +4,9 @@ import com.example.pasteboard.util.FileUtils;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.PathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -12,14 +14,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class PasteboardController {
@@ -133,6 +134,163 @@ public class PasteboardController {
             logger.warn("User {} deletion failed: file not found - {}", username, filePath);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在");
         }
+    }
+
+    @GetMapping("/list_periods")
+    @ResponseBody
+    public ResponseEntity<?> listPeriods(HttpSession session) throws IOException {
+        if (session.getAttribute("logged_in") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        String storageDir = (String) session.getAttribute("storageDir");
+
+
+        File root = new File(storageDir);
+        List<Map<String, Object>> periods = new ArrayList<>();
+        if (root.exists() && root.isDirectory()) {
+            File[] years = root.listFiles(File::isDirectory);
+            if (years != null) {
+                for (File ydir : years) {
+                    String yname = ydir.getName();
+                    if (yname.matches("\\d+")) {
+                        File[] months = ydir.listFiles(File::isDirectory);
+                        List<String> mlist = new ArrayList<>();
+                        if (months != null) {
+                            for (File mdir : months) {
+                                String mname = mdir.getName();
+                                if (mname.matches("\\d+")) {
+                                    mlist.add(mname);
+                                }
+                            }
+                        }
+                        // sort descending numeric
+                        mlist.sort((a, b) -> Integer.compare(Integer.parseInt(b), Integer.parseInt(a)));
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("year", yname);
+                        map.put("months", mlist);
+                        periods.add(map);
+                    }
+                }
+            }
+        }
+        periods.sort((a, b) -> Integer.parseInt((String) b.get("year")) - Integer.parseInt((String) a.get("year")));
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("periods", periods);
+        return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping("/list_files")
+    @ResponseBody
+    public ResponseEntity<?> listFiles(HttpSession session,
+                                       @RequestParam(value = "year", required = false) String year,
+                                       @RequestParam(value = "month", required = false) String month,
+                                       @RequestParam(value = "limit", required = false, defaultValue = "50") int limit) throws IOException {
+        if (session.getAttribute("logged_in") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        String storageDir = (String) session.getAttribute("storageDir");
+        Path root = Paths.get(storageDir);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        if (year != null && month != null && !year.isEmpty() && !month.isEmpty()) {
+            Path folder = root.resolve(year).resolve(month);
+            if (Files.exists(folder) && Files.isDirectory(folder)) {
+                try (DirectoryStream<Path> ds = Files.newDirectoryStream(folder)) {
+                    for (Path p : ds) {
+                        if (Files.isRegularFile(p)) {
+                            result.add(buildRecord(p, year, month));
+                        }
+                    }
+                }
+                // sort by time desc
+                result.sort((a, b) -> ((String) b.get("time")).compareTo((String) a.get("time")));
+            }
+        } else {
+            // walk and collect
+            try {
+                List<Map<String, Object>> all = new ArrayList<>();
+                Files.walk(root)
+                        .filter(Files::isRegularFile)
+                        .forEach(p -> {
+                            Path rel = root.relativize(p);
+                            if (rel.getNameCount() >= 3) {
+                                String y = rel.getName(0).toString();
+                                String m = rel.getName(1).toString();
+                                all.add(buildRecord(p, y, m));
+                            }
+                        });
+                all.sort((a, b) -> ((String) b.get("time")).compareTo((String) a.get("time")));
+                int lim = Math.min(limit, all.size());
+                result = all.subList(0, lim);
+            } catch (IOException e) {
+                // ignore
+                logger.warn("Error walking directory: {}", e.getMessage());
+            }
+        }
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("files", result);
+        return ResponseEntity.ok(resp);
+    }
+
+    // Serve uploaded files
+    @GetMapping("/uploads/{year}/{month}/{filename:.+}")
+    public ResponseEntity<?> serveUpload(HttpSession session,
+                                         @PathVariable String year,
+                                         @PathVariable String month,
+                                         @PathVariable String filename) throws IOException {
+        if (session.getAttribute("logged_in") == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+        }
+        String storageDir = (String) session.getAttribute("storageDir");
+
+        Path file = Paths.get(storageDir, year, month, filename);
+        if (!Files.exists(file) || !Files.isRegularFile(file)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        }
+        String contentType = tika.detect(file.toFile());
+        PathResource resource = new PathResource(file.toAbsolutePath().toString());
+        MediaType mt = MediaType.APPLICATION_OCTET_STREAM;
+        try {
+            mt = MediaType.parseMediaType(contentType);
+        } catch (Exception e) {
+        }
+        return ResponseEntity.ok()
+                .contentType(mt)
+                .body(resource);
+    }
+
+    // helper to build record map
+    private Map<String, Object> buildRecord(Path fullPath, String y, String m) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            File f = fullPath.toFile();
+            long mtime = f.lastModified();
+            Date d = new Date(mtime);
+            SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String mtimeS = fmt.format(d);
+            String filename = fullPath.getFileName().toString();
+            String ftype = fileTypeFromExt(filename);
+            String content = null;
+            if ("text".equals(ftype)) {
+                try {
+                    byte[] bytes = Files.readAllBytes(fullPath);
+                    String txt = new String(bytes, StandardCharsets.UTF_8);
+                    content = txt.length() > 500 ? txt.substring(0, 500) : txt;
+                } catch (IOException e) {
+                    content = null;
+                }
+            }
+            map.put("year", y);
+            map.put("month", m);
+            map.put("filename", filename);
+            map.put("url", "/uploads/" + y + "/" + m + "/" + filename);
+            map.put("time", mtimeS);
+            map.put("type", ftype);
+            map.put("content", content);
+        } catch (Exception e) {
+            // ignore
+        }
+        return map;
     }
 
     private String fileTypeFromExt(String filename) {
