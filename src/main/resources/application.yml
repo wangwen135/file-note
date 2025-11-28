@@ -1,0 +1,19 @@
+# Server configuration
+server:
+  port: 8000
+
+# Group configuration
+pasteboard:
+  groups:
+    - name: default
+      directory: /opt/pasteboard/data
+      users:
+        - username: user1
+          password: pass1
+          role: user
+    - name: admin_group
+      directory: /opt/pasteboard/data
+      users:
+        - username: admin
+          password: admin123
+          role: admin

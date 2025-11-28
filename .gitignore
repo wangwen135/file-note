@@ -1,0 +1,63 @@
+# Compiled class files
+*.class
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Build outputs
+/target/
+/build/
+/out/
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# IDEs
+/.idea/
+/*.iml
+*.iws
+.classpath
+.project
+.settings/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.swp
+*~
+
+# Archives and packages
+*.jar
+*.war
+*.ear
+*.zip
+
+# Secrets / keys
+*.jks
+*.keystore
+.env
+
+# IntelliJ specific (keep workspace files out of VCS)
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/shelf/
+.idea/**/dictionaries/
+
+# Ignore node modules if present
+node_modules/
+
+# Ignore generated sources (if any)
+target/
