@@ -31,12 +31,13 @@
   }
   .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1690px;
     margin: 0 auto;
     padding: 0 15px;
   }
   h1, h2 {
     text-align: center;
+    margin-bottom: 15px;
   }
   #dropzone {
     border: 3px dashed #aaa;
@@ -55,7 +56,7 @@
     border-color: #33aaff;
     color: #0077cc;
   }
-  #previews, #recent {
+  #recent {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
@@ -95,8 +96,30 @@
     margin: 0;
     flex-shrink: 1;
   }
-  .preview div:last-child, .preview small {
+  .preview .filename {
     margin-top: auto;
+    font-size: 11px;
+    color: var(--dark-text);
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    width: 100%;
+  }
+  
+  .preview .full-filename {
+    font-size: 14px;
+    font-weight: bold;
+    word-break: break-word;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    margin-bottom: auto;
+
+  }
+  
+  .preview small {
     font-size: 11px;
     color: var(--light-text);
     overflow: hidden;
@@ -163,6 +186,7 @@
     margin: 0;
     color: #0077cc;
     text-decoration: none;
+    font-size: 14px;
   }
 
   .logout-link-container a:hover {
@@ -170,8 +194,6 @@
   }
 
   button {
-    margin: 10px auto;
-    padding: 8px 16px;
     display: block;
     width: fit-content;
   }
@@ -193,6 +215,14 @@
     background-color: #3a7bc8;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  }
+
+  /* 添加分割线样式 */
+  .divider {
+    height: 2px;
+    background: linear-gradient(to right, #f0f0f0, #888, #f0f0f0);
+    margin: 20px 0;
+    border-radius: 1px;
   }
 
   .file-input-wrapper {
@@ -295,8 +325,8 @@
     <textarea id="textpaste" placeholder="或在此粘贴文本"></textarea>
     <button id="sendText" class="btn">上传文本</button>
 
-    <h2>预览</h2>
-    <div id="previews"></div>
+    <div class="divider"></div>
+
 
     <div id="periodSelector">
       <select id="yearSelect"></select>
@@ -405,7 +435,6 @@ function deleteFile(filePath) {
 }
 
 const dropzone = document.getElementById("dropzone");
-const previews = document.getElementById("previews");
 const textpaste = document.getElementById("textpaste");
 const sendTextBtn = document.getElementById("sendText");
 const recentDiv = document.getElementById("recent");
@@ -457,18 +486,14 @@ document.addEventListener("paste", e => {
           .then(blob => {
             const filename = "pasted_" + new Date().toISOString().replace(/[:.]/g, "") + ".png";
             const file = new File([blob], filename, { type: blob.type });
-            previews.innerHTML = "";
-            previewFile(file);
             uploadFiles([file]);
           })
           .catch(() => {
-            // 回退到显示原始文本
+            // 回退到文本输入框
             textpaste.value = text;
-            previews.innerHTML = `<div class="preview"><pre>${escapeHtml(text)}</pre></div>`;
           });
       } else {
         textpaste.value = text;
-        previews.innerHTML = `<div class="preview"><pre>${escapeHtml(text)}</pre></div>`;
       }
     }
   }
@@ -477,7 +502,6 @@ document.addEventListener("paste", e => {
 fileInput.addEventListener("change", e => {
   const files = e.target.files;
   if (files.length > 0) {
-    previews.innerHTML = "";
     handleFiles(files);
     fileInput.value = ""; // 清除输入以允许重新选择相同文件
   }
@@ -496,53 +520,18 @@ function escapeHtml(text) {
 }
 
 function handleFiles(files) {
-  previews.innerHTML = "";
-  for (let file of files) {
-    previewFile(file);
-  }
   uploadFiles(files);
 }
 
-function previewFile(file) {
-  const div = document.createElement("div");
-  div.className = "preview";
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "");
-  const filename = document.createElement("div");
-  filename.textContent = file.name || `pasted_${timestamp}` + getExt(file.type);
-
-  if (file.type.startsWith("image/")) {
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    div.appendChild(img);
-  } else if (file.type.startsWith("video/")) {
-    const video = document.createElement("video");
-    video.src = URL.createObjectURL(file);
-    video.controls = true;
-    div.appendChild(video);
-  } else {
-    // generic file icon and info
-    div.innerHTML = `<strong>${escapeHtml(file.name || "file")}</strong><br>Size: ${file.size} bytes`;
-  }
-  div.appendChild(filename);
-  previews.appendChild(div);
-}
-
-function getExt(type) {
-  if (type.startsWith("image/png")) return ".png";
-  if (type.startsWith("image/jpeg")) return ".jpg";
-  if (type.startsWith("image/gif")) return ".gif";
-  if (type.startsWith("image/webp")) return ".webp";
-  if (type.startsWith("video/")) return ".mp4";
-  return ".bin";
-}
 
 function uploadFiles(files) {
   const formData = new FormData();
   const timestamp = new Date().toISOString().replace(/[:.]/g, "");
   for (let i = 0; i < files.length; i++) {
     let file = files[i];
-    let filename = file.name || `pasted_${timestamp}_${i}` + getExt(file.type);
+    // 简化文件名处理，直接使用时间戳和索引
+    let filename = file.name || `pasted_${timestamp}_${i}.bin`;
     formData.append("file", file, filename);
   }
   fetch("/upload_file", {
@@ -552,7 +541,6 @@ function uploadFiles(files) {
     if (!resp.ok) alert("上传失败");
     else {
       textpaste.value = "";
-      previews.innerHTML = "";
       fetchFiles();
     }
   });
@@ -567,7 +555,6 @@ function uploadText(text) {
     if (!resp.ok) alert("上传失败");
     else {
       textpaste.value = "";
-      previews.innerHTML = "";
       fetchFiles();
     }
   });
@@ -577,7 +564,7 @@ function fetchPeriods() {
   fetch("/list_periods").then(r => r.json()).then(data => {
     const periods = data.periods;
     const yearSelect = document.getElementById("yearSelect");
-    yearSelect.innerHTML = '<option value="">All (Recent)</option>';
+    yearSelect.innerHTML = '<option value="">最近</option>';
     periods.forEach(p => {
       const opt = document.createElement("option");
       opt.value = p.year;
@@ -637,28 +624,48 @@ function fetchFiles() {
       a.style.textDecoration = "none";
       const div = document.createElement("div");
       div.className = "preview";
-      if (file.type === "text") {
-        div.innerHTML = `<pre>${escapeHtml(file.content)}</pre><small>${file.time}</small>`;
-      } else if (file.type === "image") {
-        const img = document.createElement("img");
-        img.src = file.url;
-        div.appendChild(img);
-        const lbl = document.createElement("div");
-        lbl.textContent = `${file.filename} (${file.time})`;
-        div.appendChild(lbl);
-      } else if (file.type === "video") {
-        const vid = document.createElement("video");
-        vid.src = file.url;
-        vid.controls = true;
-        div.appendChild(vid);
-        const lbl = document.createElement("div");
-        lbl.textContent = `${file.filename} (${file.time})`;
-        div.appendChild(lbl);
+      
+      // 检查是否为可预览类型
+      const isPreviewable = file.type === "text" || file.type === "image" || file.type === "video";
+      
+      if (isPreviewable) {
+        // 可预览文件：先显示内容
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          div.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.url;
+          div.appendChild(img);
+        } else if (file.type === "video") {
+          const vid = document.createElement("video");
+          vid.src = file.url;
+          vid.controls = true;
+          div.appendChild(vid);
+        }
+        
+        // 可预览文件：显示小字体文件名
+        const filenameSpan = document.createElement("span");
+        filenameSpan.textContent = file.filename;
+        filenameSpan.title = file.filename; // 悬停显示完整文件名
+        filenameSpan.className = "filename";
+        div.appendChild(filenameSpan);
       } else {
-        div.innerHTML = `<strong>${escapeHtml(file.filename)}</strong><br>${file.time}`;
+        // 不可预览文件：直接显示大字体文件名作为主要内容
+        const filenameSpan = document.createElement("span");
+        filenameSpan.textContent = file.filename;
+        filenameSpan.title = file.filename;
+        filenameSpan.className = "full-filename";
+        div.appendChild(filenameSpan);
       }
       
-      // 如果是管理员，添加删除按钮
+      // 时间始终在最下面
+      const timeDiv = document.createElement("small");
+      timeDiv.textContent = file.time;
+      div.appendChild(timeDiv);
+      
+      // 如果是管理员，添加删除按钮（作为绝对定位元素，不影响布局）
       if (window.currentRole === 'admin') {
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'delete-btn';

@@ -2,6 +2,14 @@
 server:
   port: 8080
 
+spring:
+  servlet:
+    multipart:
+      # 设置单个文件的最大大小为 10GB
+      max-file-size: 10GB
+      # 设置整个请求的最大大小为 10GB
+      max-request-size: 10GB
+
 # Group configuration
 pasteboard:
   groups:
