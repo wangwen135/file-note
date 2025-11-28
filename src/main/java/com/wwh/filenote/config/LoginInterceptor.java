@@ -1,4 +1,4 @@
-package com.example.pasteboard.config;
+package com.wwh.filenote.config;
 
 import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;

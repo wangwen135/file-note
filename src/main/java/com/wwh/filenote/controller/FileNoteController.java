@@ -1,6 +1,6 @@
-package com.example.pasteboard.controller;
+package com.wwh.filenote.controller;
 
-import com.example.pasteboard.util.FileUtils;
+import com.wwh.filenote.util.FileUtils;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +23,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
-public class PasteboardController {
+public class FileNoteController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PasteboardController.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileNoteController.class);
     private Tika tika = new Tika();
 
     @PostMapping("/upload_file")

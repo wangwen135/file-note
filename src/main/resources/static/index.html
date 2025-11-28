@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>局域网粘贴板</title>
+<title>文件便签</title>
 <style>
   :root {
     --primary-color: #4a90e2;
@@ -58,19 +58,25 @@
   #previews, #recent {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 5px;
     justify-content: center;
+    margin: 0 auto;
+    max-width: 100%;
   }
   .preview {
     border: 1px solid #ccc;
     border-radius: 6px;
     padding: 6px;
-    max-width: 180px;
-    max-height: 130px;
+    width: 180px;
+    height: 160px;
     overflow: hidden;
     word-break: break-word;
     box-sizing: border-box;
     background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.3s ease;
   }
   .preview img, .preview video {
     max-width: 100%;
@@ -79,6 +85,7 @@
     margin-bottom: 4px;
     border-radius: 4px;
     object-fit: contain;
+    flex-shrink: 0;
   }
   .preview pre {
     white-space: pre-wrap;
@@ -86,6 +93,49 @@
     overflow: auto;
     font-size: 12px;
     margin: 0;
+    flex-shrink: 1;
+  }
+  .preview div:last-child, .preview small {
+    margin-top: auto;
+    font-size: 11px;
+    color: var(--light-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: all 0.2s ease;
+  }
+  .preview:hover .delete-btn {
+    display: flex;
+  }
+  .delete-btn:hover {
+    background-color: #cc0000;
+    transform: scale(1.1);
+  }
+  
+  /* 移动端优化 */
+  @media (max-width: 600px) {
+    .delete-btn {
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+    }
   }
   textarea {
     width: 100%;
@@ -94,18 +144,29 @@
     box-sizing: border-box;
     resize: vertical;
   }
-  .user-info {
+  .header-controls {
     position: absolute;
-    top: 40px;
+    top: 10px;
     right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .user-info {
     font-size: 14px;
     color: var(--dark-text);
   }
 
-  .logout-link-container {
-    position: absolute;
-    top: 10px;
-    right: 20px;
+  .logout-link-container a {
+    display: inline;
+    margin: 0;
+    color: #0077cc;
+    text-decoration: none;
+  }
+
+  .logout-link-container a:hover {
+    text-decoration: underline;
   }
 
   button {
@@ -138,6 +199,9 @@
     position: relative;
     display: inline-block;
     margin: 10px auto 20px;
+    width: fit-content;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .file-input-wrapper .btn {
@@ -187,12 +251,11 @@
       padding: 20px;
     }
     .preview {
-      max-width: 100%;
       width: calc(50% - 10px);
-      max-height: 150px;
+      height: 160px;
     }
     .preview img, .preview video {
-      max-height: 80px;
+      max-height: 100px;
     }
     .preview pre {
       font-size: 11px;
@@ -212,10 +275,12 @@
 </style>
 </head>
 <body>
-<div class="user-info" id="user-info"></div>
-        <div class="container">
-  <h1>局域网粘贴板</h1>
-    <p class="logout-link-container"><a href="/logout">退出登录</a></p>
+<div class="header-controls">
+  <div class="user-info" id="user-info"></div>
+  <div class="logout-link-container"><a href="/logout">退出登录</a></div>
+</div>
+<div class="container">
+  <h1>文件便签</h1>
 
     <div id="dropzone" tabindex="0">
       拖放文件到此处，或粘贴图片/文本/视频 (Ctrl+V / ⌘+V)
@@ -256,10 +321,68 @@
             .then(data => {
                 document.getElementById('user-info').textContent = `当前用户组: ${data.groupName} (${data.role})`;
                 window.currentRole = data.role;
+                
+                // 根据用户角色设置删除按钮
+                setUserRole(data.role);
             })
             .catch(() => {
                 window.location.href = '/login';
             });
+            
+        // 设置用户角色功能
+        const setUserRole = (role) => {
+            if (role === 'admin') {
+                console.log('Admin user');
+                // 为每个现有文件块添加删除按钮
+                setTimeout(() => {
+                    document.querySelectorAll('.preview').forEach(preview => {
+                        addDeleteButton(preview);
+                    });
+                }, 500); // 延迟执行确保DOM已加载
+            } else {
+                console.log('Normal user');
+                // 移除所有删除按钮（如果存在）
+                document.querySelectorAll('.delete-btn').forEach(btn => btn.remove());
+            }
+        };
+
+        // 添加删除按钮的函数
+        const addDeleteButton = (preview) => {
+            // 检查是否已经有删除按钮
+            if (preview.querySelector('.delete-btn')) return;
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = '×';
+            deleteBtn.title = '删除文件';
+            
+            // 添加点击事件
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                // 获取文件名或时间戳
+                let fileName = '';
+                const small = preview.querySelector('small');
+                const div = preview.querySelector('div:last-child:not(.delete-btn)');
+                
+                if (small) {
+                    fileName = small.textContent;
+                } else if (div) {
+                    fileName = div.textContent.split(' (')[0];
+                }
+                
+                if (confirm(`确定要删除文件吗？`)) {
+                    // 获取文件类型（根据预览块中的元素判断）
+                    let filePath = '';
+                    const link = preview.closest('a');
+                    if (link && link.href) {
+                        filePath = link.href.split('/').pop();
+                    }
+                    deleteFile(filePath);
+                }
+            };
+            
+            preview.appendChild(deleteBtn);
+        };
     </script>
     <script>
 function deleteFile(filePath) {
@@ -307,7 +430,7 @@ dropzone.addEventListener("drop", e => {
 });
 dropzone.addEventListener("click", () => fileInput.click());
 
-// Paste handling
+// 粘贴处理
 document.addEventListener("paste", e => {
   e.preventDefault();
   const items = (e.clipboardData || e.originalEvent?.clipboardData || window.clipboardData)?.items || [];
@@ -324,10 +447,10 @@ document.addEventListener("paste", e => {
   }
 
   if (!hasFiles) {
-    // paste text fallback
+    // 文本粘贴回退
     const text = (e.clipboardData || window.clipboardData).getData("text");
     if (text) {
-      // Detect base64 image data URI (common on mobile pastes)
+      // 检测base64图像数据URI (移动设备粘贴常见)
       if (text.startsWith("data:image")) {
         fetch(text)
           .then(res => res.blob())
@@ -339,7 +462,7 @@ document.addEventListener("paste", e => {
             uploadFiles([file]);
           })
           .catch(() => {
-            // fallback to showing raw text
+            // 回退到显示原始文本
             textpaste.value = text;
             previews.innerHTML = `<div class="preview"><pre>${escapeHtml(text)}</pre></div>`;
           });
@@ -356,13 +479,13 @@ fileInput.addEventListener("change", e => {
   if (files.length > 0) {
     previews.innerHTML = "";
     handleFiles(files);
-    fileInput.value = ""; // clear input to allow same file re-selection
+    fileInput.value = ""; // 清除输入以允许重新选择相同文件
   }
 });
 
 sendTextBtn.addEventListener("click", () => {
   const txt = textpaste.value.trim();
-  if (!txt) return alert("Please enter some text");
+  if (!txt) return alert("请输入一些文本");
   uploadText(txt);
 });
 
@@ -426,7 +549,7 @@ function uploadFiles(files) {
     method: "POST",
     body: formData,
   }).then(resp => {
-    if (!resp.ok) alert("Upload failed");
+    if (!resp.ok) alert("上传失败");
     else {
       textpaste.value = "";
       previews.innerHTML = "";
@@ -441,7 +564,7 @@ function uploadText(text) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
   }).then(resp => {
-    if (!resp.ok) alert("Upload failed");
+    if (!resp.ok) alert("上传失败");
     else {
       textpaste.value = "";
       previews.innerHTML = "";
@@ -495,16 +618,16 @@ document.getElementById("loadBtn").addEventListener("click", () => {
 
 function fetchFiles() {
   let url = "/list_files";
-  let title = "Recent Uploads (Last 50)";
+  let title = "最近上传 (最近50个)";
   if (currentYear && currentMonth) {
     url += `?year=${currentYear}&month=${currentMonth}`;
-    title = `Uploads for ${currentYear}-${currentMonth}`;
+    title = `${currentYear}-${currentMonth}的上传文件`;
   }
   uploadsTitle.textContent = title;
   fetch(url).then(r => r.json()).then(data => {
     recentDiv.innerHTML = "";
     if (data.files.length === 0) {
-      recentDiv.textContent = "No uploads yet";
+      recentDiv.textContent = "暂无上传文件";
       return;
     }
     for (let file of data.files) {
@@ -534,6 +657,27 @@ function fetchFiles() {
       } else {
         div.innerHTML = `<strong>${escapeHtml(file.filename)}</strong><br>${file.time}`;
       }
+      
+      // 如果是管理员，添加删除按钮
+      if (window.currentRole === 'admin') {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = '×';
+        deleteBtn.title = '删除文件';
+        
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (confirm('确定要删除此文件吗？')) {
+            // 从URL中提取文件路径
+            const filePath = file.url.split('/').pop();
+            deleteFile(filePath);
+          }
+        };
+        
+        div.appendChild(deleteBtn);
+      }
+      
       a.appendChild(div);
       recentDiv.appendChild(a);
     }

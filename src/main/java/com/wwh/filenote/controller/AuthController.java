@@ -1,6 +1,6 @@
-package com.example.pasteboard.controller;
+package com.wwh.filenote.controller;
 
-import com.example.pasteboard.config.GroupConfig;
+import com.wwh.filenote.config.GroupConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

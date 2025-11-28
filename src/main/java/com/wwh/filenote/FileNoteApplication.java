@@ -1,13 +1,13 @@
-package com.example.pasteboard;
+package com.wwh.filenote;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-@ConfigurationPropertiesScan("com.example.pasteboard.config")
-public class PasteboardApplication {
+@ConfigurationPropertiesScan("com.wwh.filenote.config")
+public class FileNoteApplication {
     public static void main(String[] args) {
-        SpringApplication.run(PasteboardApplication.class, args);
+        SpringApplication.run(FileNoteApplication.class, args);
     }
 }
