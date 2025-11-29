@@ -16,7 +16,9 @@ public class WebConfig implements WebMvcConfigurer {
         // 注册登录拦截器
         registry.addInterceptor(new LoginInterceptor())
                 .addPathPatterns("/**") // 拦截所有路径
-                .excludePathPatterns("/login", "/logout") // 排除登录和登出路径
-                .excludePathPatterns("/login.html"); // 排除静态资源
+                .excludePathPatterns("/favicon.ico") // 排除网站图标
+                .excludePathPatterns("/login", "/logout") // 排除登录和登出接口
+                .excludePathPatterns("/login.html") // 排除登录页面
+                .excludePathPatterns("/images/**");// 排除图片资源
     }
 }

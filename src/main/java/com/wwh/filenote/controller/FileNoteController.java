@@ -33,22 +33,19 @@ public class FileNoteController {
     public ResponseEntity<String> uploadFile(HttpSession session, @RequestParam("file") MultipartFile[] files) throws IOException {
         String username = (String) session.getAttribute("username");
         if (username == null) username = "unknown";
-        logger.info("User {} attempting to upload {} files", username, files.length);
+        logger.info("用户 {} 尝试上传 {} 个文件", username, files.length);
 
-        if (session.getAttribute("logged_in") == null) {
-            logger.warn("Unauthorized file upload attempt by {}", username);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
-        }
+
 
         if (files == null || files.length == 0) {
-            logger.warn("User {} upload failed: no files selected", username);
+            logger.warn("用户 {} 上传失败: 未选择文件", username);
             return ResponseEntity.badRequest().body("未选择文件");
         }
 
         String storageDir = (String) session.getAttribute("storageDir");
         if (storageDir == null) {
-            logger.error("User {} upload failed: storage directory not found", username);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
+            logger.error("用户 {} 上传失败: 存储目录未找到", username);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("存储目录未找到");
         }
 
         Path uploadDir = Paths.get(storageDir, new SimpleDateFormat("yyyy").format(new Date()), new SimpleDateFormat("MM").format(new Date()));
@@ -60,7 +57,7 @@ public class FileNoteController {
             String savedFilename = filename.substring(0, filename.lastIndexOf('.')) + "_" + timestamp + filename.substring(filename.lastIndexOf('.'));
             Path savePath = uploadDir.resolve(savedFilename);
             Files.copy(f.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
-            logger.info("User {} uploaded file: {}", username, savedFilename);
+            logger.info("用户 {} 上传文件: {}", username, savedFilename);
         }
 
         return ResponseEntity.ok("OK");
@@ -71,22 +68,19 @@ public class FileNoteController {
     public ResponseEntity<String> uploadText(HttpSession session, @RequestBody Map<String, Object> body) throws IOException {
         String username = (String) session.getAttribute("username");
         if (username == null) username = "unknown";
-        logger.info("User {} attempting to upload text", username);
+        logger.info("用户 {} 尝试上传文本", username);
 
-        if (session.getAttribute("logged_in") == null) {
-            logger.warn("Unauthorized text upload attempt by {}", username);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
-        }
+
 
         if (body == null || !body.containsKey("text") || ((String) body.get("text")).trim().isEmpty()) {
-            logger.warn("User {} text upload failed: empty content", username);
+            logger.warn("用户 {} 文本上传失败: 内容为空", username);
             return ResponseEntity.badRequest().body("无文本内容");
         }
 
         String storageDir = (String) session.getAttribute("storageDir");
         if (storageDir == null) {
-            logger.error("User {} text upload failed: storage directory not found", username);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
+            logger.error("用户 {} 文本上传失败: 存储目录未找到", username);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("存储目录未找到");
         }
 
         Path uploadDir = Paths.get(storageDir, new SimpleDateFormat("yyyy").format(new Date()), new SimpleDateFormat("MM").format(new Date()));
@@ -94,7 +88,7 @@ public class FileNoteController {
         String filename = "paste_" + new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date()) + ".txt";
         Path savePath = uploadDir.resolve(filename);
         Files.write(savePath, ((String) body.get("text")).getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
-        logger.info("User {} uploaded text file: {}", username, filename);
+        logger.info("用户 {} 上传文本文件: {}", username, filename);
 
         return ResponseEntity.ok("OK");
     }
@@ -104,34 +98,42 @@ public class FileNoteController {
     public ResponseEntity<String> deleteFile(@RequestParam("path") String filePath, HttpSession session) throws IOException {
         String username = (String) session.getAttribute("username");
         if (username == null) username = "unknown";
-        logger.info("User {} attempting to delete file: {}", username, filePath);
+        logger.info("用户 {} 尝试删除文件: {}", username, filePath);
 
         String role = (String) session.getAttribute("role");
         if (!"admin".equals(role)) {
-            logger.warn("User {} unauthorized deletion attempt: {}", username, filePath);
+            logger.warn("用户 {} 未授权删除尝试: {}", username, filePath);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("无删除权限");
         }
 
         String storageDir = (String) session.getAttribute("storageDir");
         if (storageDir == null) {
-            logger.error("User {} deletion failed: storage directory not found", username);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
+            logger.error("用户 {} 删除失败: 存储目录未找到", username);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("存储目录未找到");
         }
 
+        // 确保文件路径以'/'开头的情况下也能正确处理
+        if (filePath.startsWith("/")) {
+            filePath = filePath.substring(1);
+        }
+        
+        // 确保路径是存储路径 + 请求参数中的路径
         Path basePath = Paths.get(storageDir).toAbsolutePath().normalize();
-        Path targetPath = basePath.resolve(filePath).normalize();
+        // 使用Paths.get()直接拼接，确保路径正确性
+        Path targetPath = Paths.get(basePath.toString(), filePath).toAbsolutePath().normalize();
 
+        // 安全检查：确保目标路径在存储目录内
         if (!targetPath.startsWith(basePath)) {
-            logger.warn("User {} attempted path traversal: {}", username, filePath);
+            logger.warn("用户 {} 尝试路径遍历: {}", username, filePath);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("无效的文件路径");
         }
 
         if (Files.exists(targetPath) && Files.isRegularFile(targetPath)) {
             Files.delete(targetPath);
-            logger.info("User {} deleted file successfully: {}", username, filePath);
+            logger.info("用户 {} 成功删除文件: {}", username, filePath);
             return ResponseEntity.ok("文件删除成功");
         } else {
-            logger.warn("User {} deletion failed: file not found - {}", username, filePath);
+            logger.warn("用户 {} 删除失败: 文件未找到 - {}", username, filePath);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在");
         }
     }
@@ -139,9 +141,7 @@ public class FileNoteController {
     @GetMapping("/list_periods")
     @ResponseBody
     public ResponseEntity<?> listPeriods(HttpSession session) throws IOException {
-        if (session.getAttribute("logged_in") == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        }
+
         String storageDir = (String) session.getAttribute("storageDir");
 
 
@@ -185,9 +185,7 @@ public class FileNoteController {
                                        @RequestParam(value = "year", required = false) String year,
                                        @RequestParam(value = "month", required = false) String month,
                                        @RequestParam(value = "limit", required = false, defaultValue = "50") int limit) throws IOException {
-        if (session.getAttribute("logged_in") == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        }
+
         String storageDir = (String) session.getAttribute("storageDir");
         Path root = Paths.get(storageDir);
 
@@ -224,7 +222,7 @@ public class FileNoteController {
                 result = all.subList(0, lim);
             } catch (IOException e) {
                 // ignore
-                logger.warn("Error walking directory: {}", e.getMessage());
+                logger.warn("遍历目录时出错: {}", e.getMessage());
             }
         }
         Map<String, Object> resp = new HashMap<>();
@@ -239,13 +237,13 @@ public class FileNoteController {
                                          @PathVariable String month,
                                          @PathVariable String filename) throws IOException {
         if (session.getAttribute("logged_in") == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
         }
         String storageDir = (String) session.getAttribute("storageDir");
 
         Path file = Paths.get(storageDir, year, month, filename);
         if (!Files.exists(file) || !Files.isRegularFile(file)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在");
         }
         String contentType = tika.detect(file.toFile());
         PathResource resource = new PathResource(file.toAbsolutePath().toString());
