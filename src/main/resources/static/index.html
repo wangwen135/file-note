@@ -25,7 +25,7 @@
 
     body {
       /*background-color: var(--light-bg);*/
-      background: linear-gradient(180deg, #f8f9fa 0%, #ced6e1 100%);
+      background: linear-gradient(180deg, #f8f9fa 0%, #d9dde3 100%);
       color: var(--dark-text);
       min-height: 100vh;
       display: flex;
@@ -325,10 +325,19 @@
       gap: 10px;
       margin-bottom: 10px;
     }
-
     select {
       padding: 5px;
+      border-radius: 5px;
     }
+
+    #periodSelector #yearSelect{
+      width: 100px;
+    }    
+    #periodSelector #monthSelect {
+      width: 80px;
+    }
+
+    
 
     input[type="file"] {
       margin: 10px auto 20px;
@@ -413,7 +422,7 @@
     <div id="periodSelector">
       <select id="yearSelect"></select>
       <select id="monthSelect"></select>
-      <button id="loadBtn" class="btn">加载</button>
+      <button id="loadBtn" class="btn">加  载</button>
     </div>
 
     <h2 id="uploadsTitle">最近上传 (最近50个)</h2>
@@ -595,11 +604,11 @@
       handleFetch("/list_periods").then(r => r.json()).then(data => {
         const periods = data.periods;
         const yearSelect = document.getElementById("yearSelect");
-        yearSelect.innerHTML = '<option value="">最近</option>';
+        yearSelect.innerHTML = '<option value="">最近上传</option>';
         periods.forEach(p => {
           const opt = document.createElement("option");
           opt.value = p.year;
-          opt.textContent = p.year;
+          opt.textContent = p.year + " 年";
           yearSelect.appendChild(opt);
         });
         yearSelect.addEventListener("change", updateMonths);
@@ -622,7 +631,7 @@
         p.months.forEach(m => {
           const opt = document.createElement("option");
           opt.value = m;
-          opt.textContent = m;
+          opt.textContent = m + " 月";
           monthSelect.appendChild(opt);
         });
       });
@@ -639,7 +648,7 @@
       let title = "最近上传 (最近50个)";
       if (currentYear && currentMonth) {
         url += `?year=${currentYear}&month=${currentMonth}`;
-        title = `${currentYear}-${currentMonth}的上传文件`;
+        title = `${currentYear}年-${currentMonth}月 上传的文件`;
       }
       uploadsTitle.textContent = title;
       handleFetch(url).then(r => r.json()).then(data => {
