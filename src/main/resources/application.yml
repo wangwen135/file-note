@@ -13,13 +13,13 @@ spring:
 # Group configuration
 pasteboard:
   groups:
-    - name: default
-      directory: /opt/pasteboard/data
+    - name: 普通用户组
+      directory: /opt/pasteboard/data2
       users:
         - username: user1
           password: pass1
           role: user
-    - name: admin_group
+    - name: 管理员组
       directory: /opt/pasteboard/data
       users:
         - username: admin

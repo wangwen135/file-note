@@ -36,7 +36,6 @@ public class FileNoteController {
         logger.info("用户 {} 尝试上传 {} 个文件", username, files.length);
 
 
-
         if (files == null || files.length == 0) {
             logger.warn("用户 {} 上传失败: 未选择文件", username);
             return ResponseEntity.badRequest().body("未选择文件");
@@ -69,7 +68,6 @@ public class FileNoteController {
         String username = (String) session.getAttribute("username");
         if (username == null) username = "unknown";
         logger.info("用户 {} 尝试上传文本", username);
-
 
 
         if (body == null || !body.containsKey("text") || ((String) body.get("text")).trim().isEmpty()) {
@@ -116,7 +114,7 @@ public class FileNoteController {
         if (filePath.startsWith("/")) {
             filePath = filePath.substring(1);
         }
-        
+
         // 确保路径是存储路径 + 请求参数中的路径
         Path basePath = Paths.get(storageDir).toAbsolutePath().normalize();
         // 使用Paths.get()直接拼接，确保路径正确性
@@ -236,17 +234,35 @@ public class FileNoteController {
                                          @PathVariable String year,
                                          @PathVariable String month,
                                          @PathVariable String filename) throws IOException {
-        if (session.getAttribute("logged_in") == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("未授权访问");
-        }
-        String storageDir = (String) session.getAttribute("storageDir");
 
-        Path file = Paths.get(storageDir, year, month, filename);
-        if (!Files.exists(file) || !Files.isRegularFile(file)) {
+        String storageDir = (String) session.getAttribute("storageDir");
+        if (storageDir == null) {
+            logger.error("存储目录未找到，无法提供文件");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("存储目录未找到");
+        }
+
+        Path basePath = Paths.get(storageDir).toAbsolutePath().normalize();
+        Path target;
+        try {
+            // 先构造相对路径，再从 basePath 解析，最后归一化
+            Path rel = Paths.get(year, month, filename);
+            target = basePath.resolve(rel).toAbsolutePath().normalize();
+        } catch (InvalidPathException | NullPointerException e) {
+            logger.warn("非法的文件路径请求: {}/{}/{} - {}", year, month, filename, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("无效的文件路径");
+        }
+
+        // 确保目标路径在存储目录内，防止路径遍历
+        if (!target.startsWith(basePath)) {
+            logger.warn("路径遍历尝试: {}", target);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("无效的文件路径");
+        }
+
+        if (!Files.exists(target) || !Files.isRegularFile(target)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在");
         }
-        String contentType = tika.detect(file.toFile());
-        PathResource resource = new PathResource(file.toAbsolutePath().toString());
+        String contentType = tika.detect(target.toFile());
+        PathResource resource = new PathResource(target.toAbsolutePath().toString());
         MediaType mt = MediaType.APPLICATION_OCTET_STREAM;
         try {
             mt = MediaType.parseMediaType(contentType);
@@ -286,7 +302,7 @@ public class FileNoteController {
             map.put("type", ftype);
             map.put("content", content);
         } catch (Exception e) {
-            // ignore
+            logger.warn("构建文件记录时出错: {}", e.getMessage(), e);
         }
         return map;
     }
@@ -301,14 +317,4 @@ public class FileNoteController {
         return "file";
     }
 
-
-    private byte[] readAllBytes(InputStream is) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        byte[] buffer = new byte[8192];
-        int read;
-        while ((read = is.read(buffer)) != -1) {
-            baos.write(buffer, 0, read);
-        }
-        return baos.toByteArray();
-    }
 }
