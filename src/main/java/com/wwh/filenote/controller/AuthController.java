@@ -16,6 +16,9 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 import java.net.URI;
 
+/**
+ * 认证控制器，处理用户登录、登出和用户信息获取等功能
+ */
 @Controller
 public class AuthController {
 
@@ -30,7 +33,7 @@ public class AuthController {
             @RequestParam String password,
             HttpSession session) {
 
-        logger.info("Login attempt for user: {}", username);
+        logger.info("用户登录尝试: {}", username);
         // 查找用户所属的组和角色
         GroupConfig.Group userGroup = null;
         GroupConfig.User currentUser = null;
@@ -46,7 +49,7 @@ public class AuthController {
         }
 
         if (currentUser == null) {
-            logger.warn("Login failed for user: {}", username);
+            logger.warn("用户登录失败: {}", username);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("用户名或密码错误");
         }
 
@@ -57,7 +60,7 @@ public class AuthController {
         session.setAttribute("role", currentUser.getRole());
         session.setAttribute("logged_in", true);
 
-        logger.info("User {} logged in successfully, group: {}", username, userGroup.getName());
+        logger.info("用户 {} 登录成功, 所属组: {}", username, userGroup.getName());
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/index.html")).build();
     }
 
@@ -65,17 +68,23 @@ public class AuthController {
     public ResponseEntity<?> logout(HttpSession session) {
         String username = (String) session.getAttribute("username");
         if (username != null) {
-            logger.info("User {} logged out", username);
+            logger.info("用户 {} 已登出", username);
         }
         session.invalidate();
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("/login")).build();
     }
 
+    /**
+     * 获取当前登录用户的信息
+     * @param session 当前HTTP会话
+     * @return 包含用户信息的Map，包括组名、用户名和角色
+     */
     @GetMapping("/api/user")
     @ResponseBody
     public ResponseEntity<?> getUserInfo(HttpSession session) {
         Map<String, String> userInfo = new HashMap<>();
         userInfo.put("groupName", (String) session.getAttribute("groupName"));
+        userInfo.put("username", (String) session.getAttribute("username"));
         userInfo.put("role", (String) session.getAttribute("role"));
         return ResponseEntity.ok(userInfo);
     }

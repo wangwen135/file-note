@@ -74,7 +74,7 @@
       padding: 30px;
       text-align: center;
       color: #555;
-      /*margin-bottom: 15px;*/
+      margin-bottom: 15px;
       border-radius: 10px;
       transition: background-color 0.3s ease;
       width: 100%;
@@ -215,6 +215,9 @@
         height: 28px;
         font-size: 16px;
       }
+      .user-group {
+        display: none;
+      }
     }
 
     textarea {
@@ -234,10 +237,20 @@
       align-items: center;
       gap: 15px;
     }
-
+    .user-group {
+      font-size: 14px;
+      color: var(--secondary-color);
+      border: 1px solid var(--secondary-color);
+      border-radius: 10px;
+      padding-inline: 10px;
+    }
     .user-info {
       font-size: 14px;
       color: var(--dark-text);
+    }
+    .user-info.admin {
+      color: #ff4444;
+      font-weight: bold;
     }
 
     .logout-link-container a {
@@ -391,8 +404,9 @@
 
 <body>
   <div class="header-controls">
+    <div class="user-group" id="user-group"></div>
     <div class="user-info" id="user-info"></div>
-    <div class="logout-link-container"><a href="/logout">退出登录</a></div>
+    <div class="logout-link-container"><a href="/logout">退出</a></div>
   </div>
   <div class="container">
     <div class="header-title">
@@ -440,12 +454,16 @@
         return response.json();
       })
       .then(data => {
-        document.getElementById('user-info').textContent = `当前用户组: ${data.groupName} (${data.role})`;
+        const userGroupElement = document.getElementById('user-group');
+        userGroupElement.textContent = data.groupName;
+        const userInfoElement = document.getElementById('user-info');
+        userInfoElement.textContent = data.username;
         window.currentRole = data.role;
+        
+        // 为管理员用户添加特殊样式
         if (data.role === 'admin') {
-          console.log('Admin user');
-        } else {
-          console.log('Normal user');
+          userInfoElement.classList.add('admin');
+          userInfoElement.title = '管理员用户 拥有删除文件权限！';
         }
       })
       .catch(() => {

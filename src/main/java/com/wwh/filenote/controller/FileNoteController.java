@@ -1,7 +1,6 @@
 package com.wwh.filenote.controller;
 
 import com.wwh.filenote.util.FileUtils;
-import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.PathResource;
@@ -13,20 +12,22 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * 文件笔记控制器
+ * 提供文件上传、下载、删除和查询等功能的API接口
+ */
 @Controller
 public class FileNoteController {
 
     private static final Logger logger = LoggerFactory.getLogger(FileNoteController.class);
-    private Tika tika = new Tika();
+
 
     @PostMapping("/upload_file")
     @ResponseBody
@@ -161,7 +162,7 @@ public class FileNoteController {
                                 }
                             }
                         }
-                        // sort descending numeric
+                        // 按数字降序排序
                         mlist.sort((a, b) -> Integer.compare(Integer.parseInt(b), Integer.parseInt(a)));
                         Map<String, Object> map = new HashMap<>();
                         map.put("year", yname);
@@ -198,11 +199,11 @@ public class FileNoteController {
                         }
                     }
                 }
-                // sort by time desc
+                // 按时间降序排序
                 result.sort((a, b) -> ((String) b.get("time")).compareTo((String) a.get("time")));
             }
         } else {
-            // walk and collect
+            // 遍历并收集文件信息
             try {
                 List<Map<String, Object>> all = new ArrayList<>();
                 Files.walk(root)
@@ -219,7 +220,7 @@ public class FileNoteController {
                 int lim = Math.min(limit, all.size());
                 result = all.subList(0, lim);
             } catch (IOException e) {
-                // ignore
+                // 忽略错误
                 logger.warn("遍历目录时出错: {}", e.getMessage());
             }
         }
@@ -228,12 +229,12 @@ public class FileNoteController {
         return ResponseEntity.ok(resp);
     }
 
-    // Serve uploaded files
+    // 提供已上传的文件下载
     @GetMapping("/uploads/{year}/{month}/{filename:.+}")
-    public ResponseEntity<?> serveUpload(HttpSession session,
-                                         @PathVariable String year,
-                                         @PathVariable String month,
-                                         @PathVariable String filename) throws IOException {
+    public ResponseEntity<?> serveFile(HttpSession session,
+                                       @PathVariable String year,
+                                       @PathVariable String month,
+                                       @PathVariable String filename) throws IOException {
 
         String storageDir = (String) session.getAttribute("storageDir");
         if (storageDir == null) {
@@ -261,7 +262,7 @@ public class FileNoteController {
         if (!Files.exists(target) || !Files.isRegularFile(target)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在");
         }
-        String contentType = tika.detect(target.toFile());
+        String contentType = FileUtils.getContentTypeByExtension(filename);
         PathResource resource = new PathResource(target.toAbsolutePath().toString());
         MediaType mt = MediaType.APPLICATION_OCTET_STREAM;
         try {
@@ -270,10 +271,12 @@ public class FileNoteController {
         }
         return ResponseEntity.ok()
                 .contentType(mt)
+                .header("Content-Disposition", "attachment; filename=" + FileUtils.encodeFilenameForHttpHeader(filename))
                 .body(resource);
+       
     }
 
-    // helper to build record map
+    // 辅助方法：构建文件记录映射
     private Map<String, Object> buildRecord(Path fullPath, String y, String m) {
         Map<String, Object> map = new HashMap<>();
         try {
@@ -283,7 +286,7 @@ public class FileNoteController {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String mtimeS = fmt.format(d);
             String filename = fullPath.getFileName().toString();
-            String ftype = fileTypeFromExt(filename);
+            String ftype = FileUtils.getFileTypeCategory(filename);
             String content = null;
             if ("text".equals(ftype)) {
                 try {
@@ -305,16 +308,6 @@ public class FileNoteController {
             logger.warn("构建文件记录时出错: {}", e.getMessage(), e);
         }
         return map;
-    }
-
-    private String fileTypeFromExt(String filename) {
-        String ext = "";
-        int dot = filename.lastIndexOf('.');
-        if (dot >= 0) ext = filename.substring(dot + 1).toLowerCase();
-        if (Arrays.asList("png", "jpg", "jpeg", "gif", "webp").contains(ext)) return "image";
-        if (Arrays.asList("mp4", "webm", "ogg").contains(ext)) return "video";
-        if ("txt".equals(ext)) return "text";
-        return "file";
     }
 
 }

@@ -122,7 +122,7 @@
             <img src="images/logo.png" alt="文件便签Logo" class="logo">
         </div>
         <h1>文件便签</h1>
-        <form method="post" action="/login">
+        <form id="loginForm">
             <div class="form-group">
             <label for="username">用户名</label>
             <input type="text" id="username" name="username" placeholder="请输入用户名" required>
@@ -133,7 +133,56 @@
         </div>
             <button type="submit">登录</button>
         </form>
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
         <div class="footer-text">请输入密码以访问文件便签服务</div>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            // 阻止表单默认提交行为
+            event.preventDefault();
+            
+            // 隐藏之前的错误信息
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                // 发送异步请求到登录接口
+                const formData = new URLSearchParams();
+                formData.append('username', username);
+                formData.append('password', password);
+                
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData
+                });
+                
+                if (response.redirected) {
+                    // 登录成功，跟随重定向
+                    window.location.href = response.url;
+                } else if (response.status === 401) {
+                    // 401 Unauthorized表示登录失败
+                    // 登录失败，显示错误信息
+                    // 后端返回的是纯文本错误信息，直接获取
+                    const errorMessage = await response.text().catch(() => '用户名或密码错误');
+                    document.getElementById('errorMessage').textContent = errorMessage;
+                    document.getElementById('errorMessage').style.display = 'block';
+                } else if (response.ok) {
+                    // 其他2xx成功状态码，跳转到主页
+                    window.location.href = '/';
+                }
+                // 其他错误状态码已经在try-catch中处理
+            } catch (error) {
+                // 处理网络错误等异常情况
+                document.getElementById('errorMessage').textContent = '登录过程中发生错误，请稍后重试';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>
