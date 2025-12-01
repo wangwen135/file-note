@@ -71,7 +71,7 @@
 
     #dropzone {
       border: 3px dashed #aaa;
-      padding: 30px;
+      padding: 20px;
       text-align: center;
       color: #555;
       margin-bottom: 15px;
@@ -298,26 +298,13 @@
     }
 
     .file-input-wrapper {
-      position: relative;
-      display: inline-block;
-      margin: 10px auto 20px;
-      width: fit-content;
-      left: 50%;
-      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
     }
 
-    .file-input-wrapper .btn {
-      display: block;
-    }
-
-    input[type="file"] {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
+    #fileInput {
+      display: none;
     }
 
     a {
@@ -351,11 +338,6 @@
     }
 
     
-
-    input[type="file"] {
-      margin: 10px auto 20px;
-      display: block;
-    }
 
     @media (max-width: 600px) {
       body {
@@ -419,12 +401,11 @@
 
     <div id="dropzone" tabindex="0">
       拖放文件到此处，或粘贴图片/文本/视频 (Ctrl+V / ⌘+V)
-    </div>
-
-    <!-- 移动端文件上传备用入口 -->
-    <div class="file-input-wrapper">
-      <button class="btn">选择文件</button>
-      <input type="file" id="fileInput" multiple />
+      <!-- 文件上传入口 -->
+      <div class="file-input-wrapper">
+        <button id="selectFileBtn" class="btn">选择文件</button>
+        <input type="file" id="fileInput" multiple />
+      </div>
     </div>
 
     <textarea id="textpaste" placeholder="或在此粘贴文本"></textarea>
@@ -479,6 +460,13 @@
     const recentDiv = document.getElementById("recent");
     const uploadsTitle = document.getElementById("uploadsTitle");
     const fileInput = document.getElementById("fileInput");
+    const selectFileBtn = document.getElementById("selectFileBtn");
+    
+    // 添加按钮点击事件触发文件选择
+    selectFileBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); // 阻止事件冒泡，避免触发dropzone的点击事件
+      fileInput.click();
+    });
 
     let currentYear = null;
     let currentMonth = null;
