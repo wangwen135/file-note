@@ -271,7 +271,7 @@ public class FileNoteController {
         }
         return ResponseEntity.ok()
                 .contentType(mt)
-                .header("Content-Disposition", "attachment; filename=" + FileUtils.encodeFilenameForHttpHeader(filename))
+                .header("Content-Disposition", "inline; filename=" + FileUtils.encodeFilenameForHttpHeader(filename))
                 .body(resource);
        
     }

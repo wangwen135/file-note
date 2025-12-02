@@ -2,410 +2,423 @@
 <html lang="zh-CN">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" href="images/favicon.png" type="image/png">
-  <title>文件便签</title>
-  <style>
-    :root {
-      --primary-color: #4a90e2;
-      --secondary-color: #6c757d;
-      --light-bg: #f8f9fa;
-      --dark-text: #343a40;
-      --light-text: #6c757d;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="icon" href="images/favicon.png" type="image/png">
+    <title>文件便签</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #6c757d;
+            --light-bg: #f8f9fa;
+            --dark-text: #343a40;
+            --light-text: #6c757d;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
 
-    body {
-      /*background-color: var(--light-bg);*/
-      background: linear-gradient(180deg, #f8f9fa 0%, #d9dde3 100%);
-      color: var(--dark-text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 10px;
-    }
+        body {
+            /*background-color: var(--light-bg);*/
+            background: linear-gradient(180deg, #f8f9fa 0%, #d9dde3 100%);
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+        }
 
-    .container {
-    width: 100%;
-    max-width: 1690px;
-    margin: 0 auto;
-    padding: 0 15px;
-  }
+        h1,
+        h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
 
-    h1,
-    h2 {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .header-title {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 15px;
-      gap: 18px;
-    }
-    .header-title h1 {
-      text-align: center;
-      margin: 0;
-    }
-    .logo-wrapper {
-      width: 60px;
-      height: 60px;
-    }
-    .header-logo {     
-      width: 60px;
-      height: 60px; 
-      object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
+        button {
+            display: block;
+            width: fit-content;
+        }
 
-    #dropzone {
-      border: 3px dashed #aaa;
-      padding: 20px;
-      text-align: center;
-      color: #555;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      transition: background-color 0.3s ease;
-      width: 100%;
-      box-sizing: border-box;
-      cursor: pointer;
-    }
+        textarea {
+            width: 100%;
+            height: 180px;
+            /* bigger by default */
+            box-sizing: border-box;
+            resize: vertical;
+            padding: 4px 5px;
+        }
 
-    #dropzone.dragover {
-      background-color: #eef8ff;
-      border-color: #33aaff;
-      color: #0077cc;
-    }
+        select {
+            padding: 5px;
+            border-radius: 5px;
+        }
 
-    #recent {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      justify-content: center;
-      margin: 0 auto;
-      max-width: 100%;
-    }
+        a {
+            text-align: center;
+            color: #0077cc;
+            text-decoration: none;
+        }
 
-    .preview {
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 6px;
-      width: 180px;
-      height: 160px;
-      overflow: hidden;
-      word-break: break-word;
-      box-sizing: border-box;
-      background-color: #fff;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      transition: all 0.3s ease;
-    }
+        a:hover {
+            text-decoration: underline;
+        }
 
-    .preview img,
-    .preview video {
-      max-width: 100%;
-      max-height: 100px;
-      display: block;
-      margin-bottom: 4px;
-      border-radius: 4px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
+        .container {
+            width: 100%;
+            max-width: 1690px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
 
-    .preview pre {
-      white-space: pre-wrap;
-      max-height: 100px;
-      overflow: auto;
-      font-size: 12px;
-      margin: 0;
-      flex-shrink: 1;
-    }
+        .header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            gap: 18px;
+        }
 
-    .preview .filename {
-      margin-top: auto;
-      font-size: 11px;
-      color: var(--dark-text);
-      margin-bottom: 2px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      display: inline-block;
-      width: 100%;
-    }
+        .header-title h1 {
+            text-align: center;
+            margin: 0;
+        }
 
-    .preview .full-filename {
-      font-size: 14px;
-      font-weight: bold;
-      word-break: break-word;
-      white-space: normal;
-      overflow: visible;
-      text-overflow: clip;
-      margin-bottom: auto;
-      position: relative;
-      z-index: 1;
-    }
+        .logo-wrapper {
+            width: 60px;
+            height: 60px;
+        }
 
-    /* 文件扩展名样式 */
-    .preview .file-ext {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 24px;
-      font-weight: bold;
-      color: rgba(67, 73, 78, 0.3);
-      z-index: 0;
-      pointer-events: none;
-      text-transform: uppercase;
-      line-height: 1;
-    }
+        .header-logo {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
 
-    .preview small {
-      font-size: 11px;
-      color: var(--light-text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+        #dropzone {
+            border: 3px dashed #aaa;
+            padding: 20px;
+            text-align: center;
+            color: #555;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
 
-    .delete-btn {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background-color: #ff4444;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      font-size: 14px;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      transition: all 0.2s ease;
-    }
+        #dropzone.dragover {
+            background-color: #eef8ff;
+            border-color: #33aaff;
+            color: #0077cc;
+        }
 
-    .preview:hover .delete-btn {
-      display: flex;
-    }
+        #recent {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
+            margin: 0 auto;
+            max-width: 100%;
+        }
 
-    .delete-btn:hover {
-      background-color: #cc0000;
-      transform: scale(1.1);
-    }
+        #recent a {
+            display: block;
+            margin-bottom: 15px;
+        }
 
-    /* 移动端优化 */
-    @media (max-width: 600px) {
-      .delete-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 16px;
-      }
-      .user-group {
-        display: none;
-      }
-    }
+        #recent a:hover {
+            text-decoration: none;
+        }
 
-    textarea {
-      width: 100%;
-      height: 180px;
-      /* bigger by default */
-      box-sizing: border-box;
-      resize: vertical;
-      padding: 4px 5px;
-    }
+        .preview {
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 6px;
+            width: 180px;
+            height: 160px;
+            overflow: hidden;
+            word-break: break-word;
+            box-sizing: border-box;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .preview pre {
+            white-space: pre-wrap;
+            max-height: 100px;
+            overflow: auto;
+            font-size: 12px;
+            margin: 0;
+            flex-shrink: 1;
+        }
+        .preview img,
+        .preview video {
+            max-width: 100%;
+            max-height: 100px;
+            display: block;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+        .preview .filename {
+            margin-top: auto;
+            font-size: 11px;
+            color: var(--dark-text);
+            margin-bottom: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            width: 100%;
+        }
+        .preview .full-filename {
+            font-size: 14px;
+            font-weight: bold;
+            word-break: break-word;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            margin-bottom: auto;
+            position: relative;
+            z-index: 1;
+        }
+        /* 文件扩展名样式 */
+        .preview .file-ext {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: rgba(67, 73, 78, 0.3);
+            /*pointer-events: none;*/
+            /*text-transform: uppercase;*/
+            line-height: 1;
+        }
+        .preview small {
+            font-size: 11px;
+            color: var(--light-text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
-    .header-controls {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    .user-group {
-      font-size: 14px;
-      color: var(--secondary-color);
-      border: 1px solid var(--secondary-color);
-      border-radius: 10px;
-      padding-inline: 10px;
-    }
-    .user-info {
-      font-size: 14px;
-      color: var(--dark-text);
-    }
-    .user-info.admin {
-      color: #ff4444;
-      font-weight: bold;
-    }
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
 
-    .logout-link-container a {
-      display: inline;
-      margin: 0;
-      color: #0077cc;
-      text-decoration: none;
-      font-size: 14px;
-    }
+        .preview:hover .delete-btn {
+            display: flex;
+        }
 
-    .logout-link-container a:hover {
-      text-decoration: underline;
-    }
+        .delete-btn:hover {
+            background-color: #cc0000;
+            transform: scale(1.1);
+        }
 
-    button {
-      display: block;
-      width: fit-content;
-    }
+        .header-controls {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
 
-    .btn {
-      padding: 10px 20px;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: var(--shadow);
-    }
+        .user-group {
+            font-size: 14px;
+            color: var(--secondary-color);
+            border: 1px solid var(--secondary-color);
+            border-radius: 10px;
+            padding-inline: 10px;
+        }
 
-    .btn:hover {
-      background-color: #3a7bc8;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    }
+        .user-info {
+            font-size: 14px;
+            color: var(--dark-text);
+        }
 
-    /* 添加分割线样式 */
-    .divider {
-      height: 2px;
-      background: linear-gradient(to right, #f0f0f0, #888, #f0f0f0);
-      margin: 20px 0;
-      border-radius: 1px;
-    }
+        .user-info.admin {
+            color: #ff4444;
+            font-weight: bold;
+        }
 
-    .file-input-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
+        .logout-link-container a {
+            display: inline;
+            margin: 0;
+            color: #0077cc;
+            text-decoration: none;
+            font-size: 14px;
+        }
 
-    #fileInput {
-      display: none;
-    }
+        .logout-link-container a:hover {
+            text-decoration: underline;
+        }
 
-    a {
-      display: block;
-      text-align: center;
-      margin-bottom: 15px;
-      color: #0077cc;
-      text-decoration: none;
-    }
+        .btn {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: var(--shadow);
+        }
 
-    a:hover {
-      text-decoration: underline;
-    }
+        .btn:hover {
+            background-color: #3a7bc8;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    #periodSelector {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-    select {
-      padding: 5px;
-      border-radius: 5px;
-    }
+        /* 添加分割线样式 */
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, #f0f0f0, #888, #f0f0f0);
+            margin: 20px 0;
+            border-radius: 1px;
+        }
 
-    #periodSelector #yearSelect{
-      width: 100px;
-    }    
-    #periodSelector #monthSelect {
-      width: 80px;
-    }
+        .file-input-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
 
-    
+        #fileInput {
+            display: none;
+        }
 
-    @media (max-width: 600px) {
-      body {
-        margin: 10px;
-      }
+        #periodSelector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
 
-      .container {
-        padding: 0 10px;
-      }
+        #periodSelector .date-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
 
-      #dropzone {
-        padding: 20px;
-      }
+        #periodSelector #yearSelect {
+            width: 100px;
+        }
 
-      .preview {
-        width: calc(50% - 10px);
-        height: 160px;
-      }
+        #periodSelector #monthSelect {
+            width: 80px;
+        }
 
-      .preview img,
-      .preview video {
-        max-height: 100px;
-      }
+        /* 移动端优化 */
+        @media (max-width: 600px) {
+            body {
+                margin: 10px;
+            }
 
-      .preview pre {
-        font-size: 11px;
-      }
+            .container {
+                padding: 0 10px;
+            }
 
-      textarea {
-        height: 120px;
-        /* also bigger on mobile */
-      }
+            .user-group {
+                display: none;
+            }
 
-      button {
-        width: 100%;
-        padding: 10px;
-      }
+            #dropzone {
+                padding: 20px;
+            }
 
-      #periodSelector {
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-  </style>
+            .delete-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            .preview {
+                width: calc(50% - 10px);
+                height: 160px;
+            }
+
+            .preview img,
+            .preview video {
+                max-height: 100px;
+            }
+
+            .preview pre {
+                font-size: 11px;
+            }
+
+            textarea {
+                height: 120px;
+            }
+
+            button {
+                width: 100%;
+                padding: 10px;
+            }
+
+            #periodSelector {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div class="header-controls">
+<div class="header-controls">
     <div class="user-group" id="user-group"></div>
     <div class="user-info" id="user-info"></div>
     <div class="logout-link-container"><a href="/logout">退出</a></div>
-  </div>
-  <div class="container">
+</div>
+<div class="container">
     <div class="header-title">
-      <div class="logo-wrapper">
-        <img src="images/logo.png" alt="文件便签Logo" class="header-logo">
-      </div>
-      <h1>文件便签</h1>
-      <div class="logo-wrapper"></div>
+        <div class="logo-wrapper">
+            <img src="images/logo.png" alt="文件便签Logo" class="header-logo">
+        </div>
+        <h1>文件便签</h1>
+        <div class="logo-wrapper"></div>
     </div>
 
     <div id="dropzone" tabindex="0">
-      拖放文件到此处，或粘贴图片/文本/视频 (Ctrl+V / ⌘+V)
-      <!-- 文件上传入口 -->
-      <div class="file-input-wrapper">
-        <button id="selectFileBtn" class="btn">选择文件</button>
-        <input type="file" id="fileInput" multiple />
-      </div>
+        在当前页面粘贴文件 (Ctrl+V / ⌘+V)
+        <br/>
+        或拖放文件到此处
+        <!-- 文件上传入口 -->
+        <div class="file-input-wrapper">
+            <button id="selectFileBtn" class="btn">选择文件</button>
+            <input type="file" id="fileInput" multiple/>
+        </div>
     </div>
 
     <textarea id="textpaste" placeholder="或在此粘贴文本"></textarea>
@@ -415,43 +428,45 @@
 
 
     <div id="periodSelector">
-      <select id="yearSelect"></select>
-      <select id="monthSelect"></select>
-      <button id="loadBtn" class="btn">加  载</button>
+        <div class="date-selector">
+            <select id="yearSelect"></select>
+            <select id="monthSelect"></select>
+        </div>
+        <button id="loadBtn" class="btn"> 加 载</button>
     </div>
 
-    <h2 id="uploadsTitle">最近上传 (最近50个)</h2>
+    <h2 id="uploadsTitle">最近上传的50个文件</h2>
     <div id="recent"></div>
-  </div>
+</div>
 
-  <script>
+<script>
     // 获取并显示用户组信息
     fetch('/api/user')
-      .then(response => {
-        if (!response.ok) {
-          window.location.href = '/login';
-          return;
-        }
-        return response.json();
-      })
-      .then(data => {
-        const userGroupElement = document.getElementById('user-group');
-        userGroupElement.textContent = data.groupName;
-        const userInfoElement = document.getElementById('user-info');
-        userInfoElement.textContent = data.username;
-        window.currentRole = data.role;
-        
-        // 为管理员用户添加特殊样式
-        if (data.role === 'admin') {
-          userInfoElement.classList.add('admin');
-          userInfoElement.title = '管理员用户 拥有删除文件权限！';
-        }
-      })
-      .catch(() => {
-        window.location.href = '/login';
-      });
-  </script>
-  <script>
+        .then(response => {
+            if (!response.ok) {
+                window.location.href = '/login';
+                return;
+            }
+            return response.json();
+        })
+        .then(data => {
+            const userGroupElement = document.getElementById('user-group');
+            userGroupElement.textContent = data.groupName;
+            const userInfoElement = document.getElementById('user-info');
+            userInfoElement.textContent = data.username;
+            window.currentRole = data.role;
+
+            // 为管理员用户添加特殊样式
+            if (data.role === 'admin') {
+                userInfoElement.classList.add('admin');
+                userInfoElement.title = '管理员用户 拥有删除文件权限！';
+            }
+        })
+        .catch(() => {
+            window.location.href = '/login';
+        });
+</script>
+<script>
 
 
     const dropzone = document.getElementById("dropzone");
@@ -461,11 +476,11 @@
     const uploadsTitle = document.getElementById("uploadsTitle");
     const fileInput = document.getElementById("fileInput");
     const selectFileBtn = document.getElementById("selectFileBtn");
-    
+
     // 添加按钮点击事件触发文件选择
     selectFileBtn.addEventListener("click", (e) => {
-      e.stopPropagation(); // 阻止事件冒泡，避免触发dropzone的点击事件
-      fileInput.click();
+        e.stopPropagation(); // 阻止事件冒泡，避免触发dropzone的点击事件
+        fileInput.click();
     });
 
     let currentYear = null;
@@ -473,310 +488,316 @@
 
     // Show hover style
     dropzone.addEventListener("dragover", e => {
-      e.preventDefault();
-      dropzone.classList.add("dragover");
+        e.preventDefault();
+        dropzone.classList.add("dragover");
     });
     dropzone.addEventListener("dragleave", e => {
-      dropzone.classList.remove("dragover");
+        dropzone.classList.remove("dragover");
     });
     dropzone.addEventListener("drop", e => {
-      e.preventDefault();
-      dropzone.classList.remove("dragover");
-      handleFiles(e.dataTransfer.files);
+        e.preventDefault();
+        dropzone.classList.remove("dragover");
+        handleFiles(e.dataTransfer.files);
     });
     dropzone.addEventListener("click", () => fileInput.click());
 
     // 粘贴处理
     document.addEventListener("paste", e => {
-      e.preventDefault();
-      const items = (e.clipboardData || e.originalEvent?.clipboardData || window.clipboardData)?.items || [];
-      let hasFiles = false;
+        e.preventDefault();
+        const items = (e.clipboardData || e.originalEvent?.clipboardData || window.clipboardData)?.items || [];
+        let hasFiles = false;
 
-      for (let item of items) {
-        if (item.kind === "file") {
-          const file = item.getAsFile();
-          if (file) {
-            hasFiles = true;
-            handleFiles([file]);
-          }
+        for (let item of items) {
+            if (item.kind === "file") {
+                const file = item.getAsFile();
+                if (file) {
+                    hasFiles = true;
+                    handleFiles([file]);
+                }
+            }
         }
-      }
 
-      if (!hasFiles) {
-        // 文本粘贴回退
-        const text = (e.clipboardData || window.clipboardData).getData("text");
-        if (text) {
-          // 检测base64图像数据URI (移动设备粘贴常见)
-          if (text.startsWith("data:image")) {
-            fetch(text)
-              .then(res => res.blob())
-              .then(blob => {
-                const filename = "pasted_" + new Date().toISOString().replace(/[:.]/g, "") + ".png";
-                const file = new File([blob], filename, { type: blob.type });
-                uploadFiles([file]);
-              })
-              .catch(() => {
-                // 回退到文本输入框
-                textpaste.value = text;
-              });
-          } else {
-            textpaste.value = text;
-          }
+        if (!hasFiles) {
+            // 文本粘贴回退
+            const text = (e.clipboardData || window.clipboardData).getData("text");
+            if (text) {
+                // 检测base64图像数据URI (移动设备粘贴常见)
+                if (text.startsWith("data:image")) {
+                    fetch(text)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const filename = "pasted_" + new Date().toISOString().replace(/[:.]/g, "") + ".png";
+                            const file = new File([blob], filename, {type: blob.type});
+                            uploadFiles([file]);
+                        })
+                        .catch(() => {
+                            // 回退到文本输入框
+                            textpaste.value = text;
+                        });
+                } else {
+                    textpaste.value = text;
+                }
+            }
         }
-      }
     });
 
     fileInput.addEventListener("change", e => {
-      const files = e.target.files;
-      if (files.length > 0) {
-        handleFiles(files);
-        fileInput.value = ""; // 清除输入以允许重新选择相同文件
-      }
+        const files = e.target.files;
+        if (files.length > 0) {
+            handleFiles(files);
+            fileInput.value = ""; // 清除输入以允许重新选择相同文件
+        }
     });
 
     sendTextBtn.addEventListener("click", () => {
-      const txt = textpaste.value.trim();
-      if (!txt) return alert("请输入一些文本");
-      uploadText(txt);
+        const txt = textpaste.value.trim();
+        if (!txt) return alert("请输入一些文本");
+        uploadText(txt);
     });
 
     function escapeHtml(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     function handleFiles(files) {
-      uploadFiles(files);
+        uploadFiles(files);
     }
 
 
-
     function uploadFiles(files) {
-      const formData = new FormData();
-      const timestamp = new Date().toISOString().replace(/[:.]/g, "");
-      for (let i = 0; i < files.length; i++) {
-        let file = files[i];
-        // 简化文件名处理，直接使用时间戳和索引
-        let filename = file.name || `pasted_${timestamp}_${i}.bin`;
-        formData.append("file", file, filename);
-      }
-      handleFetch("/upload_file", {
-        method: "POST",
-        body: formData,
-      }).then(resp => {
-        if (!resp.ok) alert("上传失败");
-        else {
-          textpaste.value = "";
-          fetchFiles();
+        const formData = new FormData();
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "");
+        for (let i = 0; i < files.length; i++) {
+            let file = files[i];
+            // 简化文件名处理，直接使用时间戳和索引
+            let filename = file.name || `pasted_${timestamp}_${i}.bin`;
+            formData.append("file", file, filename);
         }
-      });
+        handleFetch("/upload_file", {
+            method: "POST",
+            body: formData,
+        }).then(resp => {
+            if (!resp.ok) alert("上传失败");
+            else {
+                textpaste.value = "";
+                fetchFiles();
+            }
+        });
     }
 
     // 统一处理fetch请求，检测登录过期并重定向
     function handleFetch(url, options = {}) {
-      return fetch(url, options).then(resp => {
-        // 检查是否为重定向到登录页面（通常是302状态码）
-        if (resp.redirected && resp.url.includes('/login')) {
-          // 执行页面跳转
-          window.location.href = resp.url;
-          return Promise.reject('已跳转到登录页面');
-        }
-        return resp;
-      }).catch(error => {
-        // 捕获可能的错误，但不阻止登录页面跳转
-        if (error !== '已跳转到登录页面') {
-          console.error('请求错误:', error);
-        }
-        throw error;
-      });
+        return fetch(url, options).then(resp => {
+            // 检查是否为重定向到登录页面（通常是302状态码）
+            if (resp.redirected && resp.url.includes('/login')) {
+                // 执行页面跳转
+                window.location.href = resp.url;
+                return Promise.reject('已跳转到登录页面');
+            }
+            return resp;
+        }).catch(error => {
+            // 捕获可能的错误，但不阻止登录页面跳转
+            if (error !== '已跳转到登录页面') {
+                console.error('请求错误:', error);
+            }
+            throw error;
+        });
     }
 
     function uploadText(text) {
-      handleFetch("/upload_text", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      }).then(resp => {
-        if (!resp.ok) alert("上传失败");
-        else {
-          textpaste.value = "";
-          fetchFiles();
-        }
-      });
+        handleFetch("/upload_text", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({text}),
+        }).then(resp => {
+            if (!resp.ok) alert("上传失败");
+            else {
+                textpaste.value = "";
+                fetchFiles();
+            }
+        });
     }
 
     function fetchPeriods() {
-      handleFetch("/list_periods").then(r => r.json()).then(data => {
-        const periods = data.periods;
-        const yearSelect = document.getElementById("yearSelect");
-        yearSelect.innerHTML = '<option value="">最近上传</option>';
-        periods.forEach(p => {
-          const opt = document.createElement("option");
-          opt.value = p.year;
-          opt.textContent = p.year + " 年";
-          yearSelect.appendChild(opt);
+        handleFetch("/list_periods").then(r => r.json()).then(data => {
+            const periods = data.periods;
+            const yearSelect = document.getElementById("yearSelect");
+            yearSelect.innerHTML = '<option value="">最近上传</option>';
+            periods.forEach(p => {
+                const opt = document.createElement("option");
+                opt.value = p.year;
+                opt.textContent = p.year + " 年";
+                yearSelect.appendChild(opt);
+            });
+            yearSelect.addEventListener("change", updateMonths);
+            updateMonths();
         });
-        yearSelect.addEventListener("change", updateMonths);
-        updateMonths();
-      });
     }
 
     function updateMonths() {
-      const year = document.getElementById("yearSelect").value;
-      const monthSelect = document.getElementById("monthSelect");
-      if (!year) {
-        monthSelect.innerHTML = '<option value="">--</option>';
-        monthSelect.disabled = true;
-        return;
-      }
-      monthSelect.disabled = false;
-      handleFetch("/list_periods").then(r => r.json()).then(data => {
-        const p = data.periods.find(pp => pp.year === year);
-        monthSelect.innerHTML = "";
-        p.months.forEach(m => {
-          const opt = document.createElement("option");
-          opt.value = m;
-          opt.textContent = m + " 月";
-          monthSelect.appendChild(opt);
+        const year = document.getElementById("yearSelect").value;
+        const monthSelect = document.getElementById("monthSelect");
+        if (!year) {
+            monthSelect.innerHTML = '<option value="">--</option>';
+            monthSelect.disabled = true;
+            return;
+        }
+        monthSelect.disabled = false;
+        handleFetch("/list_periods").then(r => r.json()).then(data => {
+            const p = data.periods.find(pp => pp.year === year);
+            monthSelect.innerHTML = "";
+            p.months.forEach(m => {
+                const opt = document.createElement("option");
+                opt.value = m;
+                opt.textContent = m + " 月";
+                monthSelect.appendChild(opt);
+            });
         });
-      });
     }
 
     document.getElementById("loadBtn").addEventListener("click", () => {
-      currentYear = document.getElementById("yearSelect").value;
-      currentMonth = document.getElementById("monthSelect").value;
-      fetchFiles();
+        currentYear = document.getElementById("yearSelect").value;
+        currentMonth = document.getElementById("monthSelect").value;
+        fetchFiles();
     });
 
     function fetchFiles() {
-      let url = "/list_files";
-      let title = "最近上传 (最近50个)";
-      if (currentYear && currentMonth) {
-        url += `?year=${currentYear}&month=${currentMonth}`;
-        title = `${currentYear}年-${currentMonth}月 上传的文件`;
-      }
-      uploadsTitle.textContent = title;
-      handleFetch(url).then(r => r.json()).then(data => {
-        recentDiv.innerHTML = "";
-        if (data.files.length === 0) {
-          recentDiv.textContent = "暂无上传文件";
-          return;
+        let url = "/list_files";
+        let title = "最近上传的50个文件";
+        if (currentYear && currentMonth) {
+            url += `?year=${currentYear}&month=${currentMonth}`;
+            title = `${currentYear}年-${currentMonth}月 上传的文件`;
         }
-        for (let file of data.files) {
-          const a = document.createElement("a");
-          a.href = file.url;
-          a.target = "_blank";
-          a.style.textDecoration = "none";
-          const previewDiv = document.createElement("div");
-          previewDiv.className = "preview";
-
-          // 检查是否为可预览类型
-          const isPreviewable = file.type === "text" || file.type === "image" || file.type === "video";
-
-          if (isPreviewable) {
-            // 可预览文件：先显示内容
-            if (file.type === "text") {
-              const pre = document.createElement("pre");
-              pre.textContent = file.content;
-              previewDiv.appendChild(pre);
-            } else if (file.type === "image") {
-              const img = document.createElement("img");
-              img.src = file.url;
-              previewDiv.appendChild(img);
-            } else if (file.type === "video") {
-              const vid = document.createElement("video");
-              vid.src = file.url;
-              vid.controls = true;
-              previewDiv.appendChild(vid);
+        uploadsTitle.textContent = title;
+        handleFetch(url).then(r => r.json()).then(data => {
+            recentDiv.innerHTML = "";
+            if (data.files.length === 0) {
+                recentDiv.textContent = "暂无上传文件";
+                return;
             }
-          } else {
-            // 不可预览文件：直接显示大字体文件名作为主要内容
-            const rawFile = document.createElement("div");
-            rawFile.textContent = file.filename;
-            rawFile.title = file.filename;
-            rawFile.className = "full-filename";
-            previewDiv.appendChild(rawFile);
-            //用于展示文件类型
-            const fileExt = file.filename.split('.').pop().toUpperCase();
-            const extDiv = document.createElement("div");
-            extDiv.textContent = fileExt;
-            extDiv.className = "file-ext";
-            previewDiv.appendChild(extDiv);
-          }
-          // 可预览文件：显示小字体文件名
-          const filenameSpan = document.createElement("span");
-          filenameSpan.textContent = file.filename;
-          filenameSpan.title = file.filename; // 悬停显示完整文件名
-          //如果是不能预览的文件则不用重复显示文件名
-          if (!isPreviewable) {
-            filenameSpan.style.display = "none";
-          }
-          filenameSpan.className = "filename";
-          previewDiv.appendChild(filenameSpan);
-          // 时间
-          const timeDiv = document.createElement("small");
-          timeDiv.textContent = file.time;
-          previewDiv.appendChild(timeDiv);
+            for (let file of data.files) {
+                const a = document.createElement("a");
+                a.href = file.url;
+                a.target = "_blank";
 
-          // 如果是管理员，添加删除按钮（作为绝对定位元素，不影响布局）
-          if (window.currentRole === 'admin') {
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn';
-            deleteBtn.textContent = '×';
-            deleteBtn.title = '删除文件';
+                const previewDiv = document.createElement("div");
+                previewDiv.className = "preview";
 
-            deleteBtn.onclick = (e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (confirm(`确定要删除文件？\n ${file.filename}`)) {
-                // 从URL中提取文件路径
-                const filePath = file.url.replace(/^\/uploads/, '');
-                deleteFile(filePath, a); // 直接传递a元素
-              }
-            };
+                // 检查是否为可预览类型
+                const isPreviewable = file.type === "text" || file.type === "image" || file.type === "video";
 
-            previewDiv.appendChild(deleteBtn);
-          }
+                if (isPreviewable) {
+                    // 可预览文件：先显示内容
+                    if (file.type === "text") {
+                        const pre = document.createElement("pre");
+                        pre.textContent = file.content;
+                        previewDiv.appendChild(pre);
+                    } else if (file.type === "image") {
+                        const img = document.createElement("img");
+                        img.src = file.url;
+                        previewDiv.appendChild(img);
+                    } else if (file.type === "video") {
+                        const vid = document.createElement("video");
+                        vid.src = file.url;
+                        vid.controls = true;
+                        previewDiv.appendChild(vid);
+                    }
+                } else {
+                    //不可预览文件：直接显示大字体文件名作为主要内容
+                    const fileNameDiv = document.createElement("div");
+                    fileNameDiv.textContent = file.filename;
+                    fileNameDiv.title = file.filename;
+                    fileNameDiv.className = "full-filename";
+                    previewDiv.appendChild(fileNameDiv);
+                }
 
-          a.appendChild(previewDiv);
-          recentDiv.appendChild(a);
-        }
-      });
+                const fileInfoDiv = document.createElement("div");
+                fileInfoDiv.className = "file-info";
+                previewDiv.appendChild(fileInfoDiv);
+
+                if(isPreviewable){
+                    // 可预览文件：显示小字体文件名
+                    const filenameSpan = document.createElement("span");
+                    filenameSpan.textContent = file.filename;
+                    filenameSpan.title = file.filename; // 悬停显示完整文件名
+                    filenameSpan.className = "filename";
+                    fileInfoDiv.appendChild(filenameSpan);
+                }else{
+                    //不可预览文件：展示文件类型名称
+                    const fileExt = file.filename.split('.').pop().toUpperCase();
+                    const fileExtDiv = document.createElement("div");
+                    fileExtDiv.textContent = fileExt;
+                    fileExtDiv.className = "file-ext";
+                    fileInfoDiv.appendChild(fileExtDiv);
+                }
+
+                // 时间
+                const timeDiv = document.createElement("small");
+                timeDiv.textContent = file.time;
+                fileInfoDiv.appendChild(timeDiv);
+
+                // 如果是管理员，添加删除按钮（作为绝对定位元素，不影响布局）
+                if (window.currentRole === 'admin') {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-btn';
+                    deleteBtn.textContent = '×'; // 使用 Unicode 字符 U+00D7
+                    deleteBtn.title = '删除文件';
+
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (confirm(`确定要删除文件？\n ${file.filename}`)) {
+                            // 从URL中提取文件路径
+                            const filePath = file.url.replace(/^\/uploads/, '');
+                            deleteFile(filePath, a); // 直接传递a元素
+                        }
+                    };
+
+                    previewDiv.appendChild(deleteBtn);
+                }
+
+                a.appendChild(previewDiv);
+                recentDiv.appendChild(a);
+            }
+        });
     }
+
     function deleteFile(filePath, element) {
-      fetch(`/delete_file?path=${filePath}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-        .then(response => {
-          if (response.ok) {
-            alert('删除成功！');
-            // 如果提供了元素，则直接删除它
-            if (element && element.parentNode) {
-              element.parentNode.removeChild(element);
-            } else {
-              // 如果没有元素，刷新页面
-              window.location.reload();
+        fetch(`/delete_file?path=${filePath}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
-          } else {
-            response.text().then(text => {
-              if (text) {
-                alert('删除失败!\n' + text);
-              } else {
-                alert('删除失败!');
-              }
-            }).catch(() => alert('删除失败!'));
-          }
         })
-        .catch(err => console.error('删除错误:', err));
+            .then(response => {
+                if (response.ok) {
+                    alert('删除成功！');
+                    // 如果提供了元素，则直接删除它
+                    if (element && element.parentNode) {
+                        element.parentNode.removeChild(element);
+                    } else {
+                        // 如果没有元素，刷新页面
+                        window.location.reload();
+                    }
+                } else {
+                    response.text().then(text => {
+                        if (text) {
+                            alert('删除失败!\n' + text);
+                        } else {
+                            alert('删除失败!');
+                        }
+                    }).catch(() => alert('删除失败!'));
+                }
+            })
+            .catch(err => console.error('删除错误:', err));
     }
+
     fetchPeriods();
     fetchFiles();
 
-  </script>
+</script>
 </body>
 
 </html>
