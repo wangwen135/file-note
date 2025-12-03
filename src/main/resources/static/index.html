@@ -261,8 +261,14 @@
         }
 
         .user-info.admin {
-            color: #ff4444;
+            /*color: #ff4444;*/
             font-weight: bold;
+        }
+        .user-info.admin::before {
+            content: "★";
+            color: #ffcc00;
+            margin-right: 3px;
+            font-size: 16px;
         }
 
         .logout-link-container a {
@@ -501,10 +507,10 @@
 
     // 粘贴处理
     document.addEventListener("paste", e => {
-        e.preventDefault();
         const items = (e.clipboardData || e.originalEvent?.clipboardData || window.clipboardData)?.items || [];
         let hasFiles = false;
 
+        // 检查是否有文件粘贴
         for (let item of items) {
             if (item.kind === "file") {
                 const file = item.getAsFile();
@@ -515,27 +521,35 @@
             }
         }
 
-        if (!hasFiles) {
-            // 文本粘贴回退
-            const text = (e.clipboardData || window.clipboardData).getData("text");
-            if (text) {
-                // 检测base64图像数据URI (移动设备粘贴常见)
-                if (text.startsWith("data:image")) {
-                    fetch(text)
-                        .then(res => res.blob())
-                        .then(blob => {
-                            const filename = "pasted_" + new Date().toISOString().replace(/[:.]/g, "") + ".png";
-                            const file = new File([blob], filename, {type: blob.type});
-                            uploadFiles([file]);
-                        })
-                        .catch(() => {
-                            // 回退到文本输入框
-                            textpaste.value = text;
-                        });
-                } else {
-                    textpaste.value = text;
+        // 如果有文件粘贴，阻止默认行为以避免冲突
+        if (hasFiles) {
+            e.preventDefault();
+        } else {
+            // 没有文件粘贴的情况
+            if (e.target !== textpaste) {
+                // 如果不是在文本输入框中粘贴，阻止默认行为并将文本放入输入框
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData("text");
+                if (text) {
+                    // 检测base64图像数据URI (移动设备粘贴常见)
+                    if (text.startsWith("data:image")) {
+                        fetch(text)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const filename = "pasted_" + new Date().toISOString().replace(/[:.]/g, "") + ".png";
+                                const file = new File([blob], filename, {type: blob.type});
+                                uploadFiles([file]);
+                            })
+                            .catch(() => {
+                                // 回退到文本输入框
+                                textpaste.value = text;
+                            });
+                    } else {
+                        textpaste.value = text;
+                    }
                 }
             }
+            // 如果是在文本输入框中粘贴文本，不阻止默认行为，让浏览器正常处理
         }
     });
 
@@ -579,7 +593,7 @@
         }).then(resp => {
             if (!resp.ok) alert("上传失败");
             else {
-                textpaste.value = "";
+                // textpaste.value = "";
                 fetchFiles();
             }
         });

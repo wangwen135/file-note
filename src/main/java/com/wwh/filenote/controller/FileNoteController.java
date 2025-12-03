@@ -56,6 +56,7 @@ public class FileNoteController {
             String filename = FileUtils.safeUnicodeFilename(f.getOriginalFilename() != null ? f.getOriginalFilename() : "pasted_file");
             String savedFilename = filename.substring(0, filename.lastIndexOf('.')) + "_" + timestamp + filename.substring(filename.lastIndexOf('.'));
             Path savePath = uploadDir.resolve(savedFilename);
+            //后续这里可以考虑将上传的txt文件都转成utf-8编码存储
             Files.copy(f.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
             logger.info("用户 {} 上传文件: {}", username, savedFilename);
         }

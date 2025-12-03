@@ -1,7 +1,11 @@
-# Server configuration
+# 服务器配置
 server:
   port: 8080
+  servlet:
+    session:
+      timeout: 1h  # 1小时
 
+# 文件上传配置
 spring:
   servlet:
     multipart:
@@ -10,17 +14,23 @@ spring:
       # 设置整个请求的最大大小为 10GB
       max-request-size: 10GB
 
-# Group configuration
-pasteboard:
+# 文件存储目录与用户配置
+# 每个用户组可以配置一个文件存储目录与多个用户
+# 每个用户可以配置用户名、密码与角色（user或admin）
+# 管理员角色可删除当前组内任意用户上传的文件
+file-note:
   groups:
-    - name: 普通用户组
-      directory: /opt/pasteboard/data2
+    - name: 对外共享组
+      directory: /opt/file-note/shared
       users:
-        - username: user1
-          password: pass1
+        - username: user
+          password: pass
           role: user
-    - name: 管理员组
-      directory: /opt/pasteboard/data
+        - username: sadmin
+          password: sadmin123
+          role: admin
+    - name: 内部用户组
+      directory: /opt/file-note/data
       users:
         - username: admin
           password: admin123

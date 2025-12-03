@@ -160,7 +160,7 @@ public class FileUtils {
         if (docExts.contains(ext)) {
             switch (ext) {
                 case "txt":
-                    return "text/plain";
+                    return "text/plain; charset=UTF-8"; //目前只支持UTF-8编码
                 case "pdf":
                     return "application/pdf";
                 case "doc":

@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.List;
 
 @Configuration
-@ConfigurationProperties(prefix = "pasteboard")
+@ConfigurationProperties(prefix = "file-note")
 public class GroupConfig {
     private List<Group> groups;
 
