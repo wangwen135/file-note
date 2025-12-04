@@ -45,15 +45,51 @@
 
 - Java 8 或更高版本
 
+### 打包后目录结构
+
+最终打包后的 tar 包解压后将包含以下文件和目录：
+
+```
+file-note/
+├── file-note.jar        # 应用程序 JAR 文件
+├── application.yml      # 配置文件
+└── scripts/
+    ├── start.sh         # Linux/Mac 启动脚本
+    └── start.bat        # Windows 启动脚本
+```
+
 ### 运行步骤
 
-1. 下载最新的 jar 包
-2. 在 jar 包同级目录创建 `application.yml` 配置文件
-3. 运行命令：
+1. 下载并解压最新的 tar 包
+2. 在解压后的目录中创建或修改 `application.yml` 配置文件
+3. 运行应用：
 
-```bash
-java -jar file-note.jar
-```
+   **使用启动脚本（推荐）：**
+   
+   - **Linux/Mac：**
+     ```bash
+     # 赋予脚本执行权限
+     chmod +x scripts/start.sh
+     
+     # 运行脚本
+     ./scripts/start.sh
+     ```
+     
+   - **Windows：**
+     ```bash
+     # 直接双击运行或在命令行中执行
+     scripts\start.bat
+     ```
+     
+   **使用传统命令：**
+   ```bash
+   java -jar file-note.jar
+   ```
+   
+   **在后台运行（Linux/Mac）：**
+   ```bash
+   nohup java -jar file-note.jar > out.log 2>&1 &
+   ```
 
 4. 访问应用：http://localhost:8080
 

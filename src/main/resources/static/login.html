@@ -108,11 +108,18 @@
             margin-top: 1rem;
             font-size: 0.9rem;
         }
-        .footer-text {
+        .login-footer-text {
             text-align: center;
             margin-top: 1.5rem;
             color: #777;
             font-size: 0.85rem;
+        }
+        .footer-credit {
+            position: fixed;
+            bottom: 10px;
+            font-size: 0.9rem;
+            color: #999;
+            text-align: center;
         }
     </style>
 </head>
@@ -134,9 +141,9 @@
             <button type="submit">登录</button>
         </form>
         <div id="errorMessage" class="error-message" style="display: none;"></div>
-        <div class="footer-text">请输入密码以访问文件便签服务</div>
+        <div class="login-footer-text">请输入密码以访问文件便签服务</div>
     </div>
-
+    <div class="footer-credit">Core: XD | Implementation: WWH</div>
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function(event) {
             // 阻止表单默认提交行为
