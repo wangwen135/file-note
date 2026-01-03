@@ -7,7 +7,16 @@ import java.util.List;
 @Configuration
 @ConfigurationProperties(prefix = "file-note")
 public class GroupConfig {
+    private Anonymous anonymous;
     private List<Group> groups;
+
+    public Anonymous getAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(Anonymous anonymous) {
+        this.anonymous = anonymous;
+    }
 
     public List<Group> getGroups() {
         return groups;
@@ -15,6 +24,22 @@ public class GroupConfig {
 
     public void setGroups(List<Group> groups) {
         this.groups = groups;
+    }
+
+    public static class Anonymous {
+        private boolean enabled;
+        private String name;
+        private String directory;
+        private String role;
+
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
+        public String getDirectory() { return directory; }
+        public void setDirectory(String directory) { this.directory = directory; }
+        public String getRole() { return role; }
+        public void setRole(String role) { this.role = role; }
     }
 
     public static class Group {
