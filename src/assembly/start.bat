@@ -1,7 +1,7 @@
 @echo off
 
 :: Windows启动脚本
-set JAR_NAME=file-note-0.1.jar
+set JAR_NAME=file-note-0.1.1.jar
 set LOG_FILE=out.log
 
 :: 检查jar文件是否存在
