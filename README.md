@@ -27,9 +27,19 @@
 
 ![登录页面](images/login.png)
 
+
+![匿名用户登录界面](images/anonymous-login.png)
+> 匿名用户登录界面
+
+
 ### 主界面
 
 ![主界面](images/main.png)
+
+### 大文件上传
+![大文件上传](images/large-file-upload.png)
+
+
 
 ### 移动端适配
 
