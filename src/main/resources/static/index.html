@@ -973,7 +973,14 @@
                     fileInfoDiv.appendChild(filenameSpan);
                 }else{
                     //不可预览文件：展示文件类型名称
-                    const fileExt = file.filename.split('.').pop().toUpperCase();
+                    const hasExtension = file.filename.includes('.');
+                    let fileExt;
+                    if (hasExtension) {
+                        fileExt = file.filename.split('.').pop().toUpperCase();
+                        fileExt = fileExt.length <= 5 ? fileExt : fileExt.substring(0, 5);
+                    } else {
+                        fileExt = 'UNKNOWN';
+                    }
                     const fileExtDiv = document.createElement("div");
                     fileExtDiv.textContent = fileExt;
                     fileExtDiv.className = "file-ext";

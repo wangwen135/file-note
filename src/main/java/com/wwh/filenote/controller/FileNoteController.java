@@ -54,7 +54,13 @@ public class FileNoteController {
 
         for (MultipartFile f : files) {
             String filename = FileUtils.safeUnicodeFilename(f.getOriginalFilename() != null ? f.getOriginalFilename() : "pasted_file");
-            String savedFilename = filename.substring(0, filename.lastIndexOf('.')) + "_" + timestamp + filename.substring(filename.lastIndexOf('.'));
+            int dotIndex = filename.lastIndexOf('.');
+            String savedFilename = filename;
+            if (dotIndex > 0) {
+                savedFilename = filename.substring(0, dotIndex) + "_" + timestamp + filename.substring(dotIndex);
+            } else {
+                savedFilename = filename + "_" + timestamp;
+            }
             Path savePath = uploadDir.resolve(savedFilename);
             //后续这里可以考虑将上传的txt文件都转成utf-8编码存储
             Files.copy(f.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
@@ -274,7 +280,7 @@ public class FileNoteController {
                 .contentType(mt)
                 .header("Content-Disposition", "inline; filename=" + FileUtils.encodeFilenameForHttpHeader(filename))
                 .body(resource);
-       
+
     }
 
     // 辅助方法：构建文件记录映射

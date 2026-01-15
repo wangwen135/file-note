@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 获取脚本所在目录的绝对路径
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 进入该目录
+cd "$SCRIPT_DIR" || exit
+echo "当前目录已切换至: $(pwd)"
+
 # Linux启动脚本
 JAR_NAME="file-note-0.1.1.jar"
 LOG_FILE="out.log"
