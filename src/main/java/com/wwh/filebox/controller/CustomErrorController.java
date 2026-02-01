@@ -1,4 +1,4 @@
-package com.wwh.filenote.controller;
+package com.wwh.filebox.controller;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;

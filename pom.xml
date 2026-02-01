@@ -4,8 +4,8 @@
   http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.wwh</groupId>
-    <artifactId>file-note</artifactId>
-    <version>0.1.1</version>
+    <artifactId>file-box</artifactId>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <parent>

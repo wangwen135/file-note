@@ -1,4 +1,4 @@
-package com.wwh.filenote.config;
+package com.wwh.filebox.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,7 +7,7 @@ cd "$SCRIPT_DIR" || exit
 echo "当前目录已切换至: $(pwd)"
 
 # Linux启动脚本
-JAR_NAME="file-note-0.1.1.jar"
+JAR_NAME="file-box-0.1.2.jar"
 LOG_FILE="out.log"
 
 # 检查jar文件是否存在

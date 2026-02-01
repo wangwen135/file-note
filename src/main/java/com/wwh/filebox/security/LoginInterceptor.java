@@ -1,6 +1,6 @@
-package com.wwh.filenote.security;
+package com.wwh.filebox.security;
 
-import com.wwh.filenote.config.GroupConfig;
+import com.wwh.filebox.config.GroupConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;

@@ -1,13 +1,13 @@
-package com.wwh.filenote;
+package com.wwh.filebox;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @SpringBootApplication
-@ConfigurationPropertiesScan("com.wwh.filenote.config")
-public class FileNoteApplication {
+@ConfigurationPropertiesScan("com.wwh.filebox.config")
+public class FileBoxApplication {
     public static void main(String[] args) {
-        SpringApplication.run(FileNoteApplication.class, args);
+        SpringApplication.run(FileBoxApplication.class, args);
     }
 }

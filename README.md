@@ -1,5 +1,5 @@
 
-# 文件便签 (File Note)
+# 文件盒子 (File Box)
 
 > 参考 XD 的 **[pasteboard.py](references/pasteboard.py)** 实现的文件共享和管理工具，使用 Java 重写并增强功能
 
@@ -26,11 +26,6 @@
 ### 登录页面
 
 ![登录页面](images/login.png)
-
-
-![匿名用户登录界面](images/anonymous-login.png)
-> 匿名用户登录界面
-
 
 ### 主界面
 
@@ -62,8 +57,8 @@
 最终打包后的 tar 包解压后将包含以下文件和目录：
 
 ```
-file-note/
-├── file-note-0.1.jar    # 应用程序 JAR 文件
+file-box/
+├── file-box-0.1.jar    # 应用程序 JAR 文件
 ├── application.yml      # 配置文件
 ├── start.sh             # Linux/Mac 启动脚本
 └── start.bat            # Windows 启动脚本
@@ -92,14 +87,14 @@ file-note/
      start.bat
      ```
      
-   **使用传统命令：**
+   **使用java命令：**
    ```bash
-   java -jar file-note.jar
+   java -jar file-box.jar
    ```
    
    **在后台运行（Linux/Mac）：**
    ```bash
-   nohup java -jar file-note.jar > out.log 2>&1 &
+   nohup java -jar file-box.jar > out.log 2>&1 &
    ```
 
 4. 访问应用：http://localhost:8080
@@ -116,27 +111,27 @@ server:
   port: 8080
   servlet:
     session:
-      timeout: 1h
+      timeout: 1h  # session超时时间：1小时
 
 # 文件上传配置
 spring:
   servlet:
     multipart:
-      max-file-size: 10GB
-      max-request-size: 10GB
+      max-file-size: 3GB
+      max-request-size: 3GB
 
 # 文件存储目录与用户配置
-file-note:
+file-box:
   # 匿名访问配置
   anonymous:
     enabled: true
     name: 匿名用户组
-    directory: /opt/file-note/anonymous
+    directory: /opt/file-box/anonymous
     role: user
   # 用户组配置
   groups:
     - name: 对外共享组
-      directory: /opt/file-note/shared
+      directory: /opt/file-box/shared
       users:
         - username: user
           password: pass
@@ -145,7 +140,7 @@ file-note:
           password: sadmin123
           role: admin
     - name: 内部用户组
-      directory: /opt/file-note/data
+      directory: /opt/file-box/data
       users:
         - username: admin
           password: admin123

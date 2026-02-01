@@ -1,7 +1,7 @@
-package com.wwh.filenote.controller;
+package com.wwh.filebox.controller;
 
-import com.wwh.filenote.config.GroupConfig;
-import com.wwh.filenote.security.LoginAttemptManager;
+import com.wwh.filebox.config.GroupConfig;
+import com.wwh.filebox.security.LoginAttemptManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
