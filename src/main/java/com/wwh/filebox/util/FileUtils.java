@@ -1,4 +1,4 @@
-package com.wwh.filenote.util;
+package com.wwh.filebox.util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

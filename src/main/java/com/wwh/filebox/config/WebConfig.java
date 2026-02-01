@@ -1,6 +1,6 @@
-package com.wwh.filenote.config;
+package com.wwh.filebox.config;
 
-import com.wwh.filenote.security.LoginInterceptor;
+import com.wwh.filebox.security.LoginInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

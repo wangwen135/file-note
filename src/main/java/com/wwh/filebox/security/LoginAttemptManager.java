@@ -1,4 +1,4 @@
-package com.wwh.filenote.security;
+package com.wwh.filebox.security;
 
 import org.springframework.stereotype.Service;
 

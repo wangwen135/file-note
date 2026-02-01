@@ -1,6 +1,6 @@
-package com.wwh.filenote.controller;
+package com.wwh.filebox.controller;
 
-import com.wwh.filenote.util.FileUtils;
+import com.wwh.filebox.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.PathResource;
@@ -20,13 +20,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * 文件笔记控制器
+ * 文件盒子控制器
  * 提供文件上传、下载、删除和查询等功能的API接口
  */
 @Controller
-public class FileNoteController {
+public class FileBoxController {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileNoteController.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileBoxController.class);
 
 
     @PostMapping("/upload_file")
