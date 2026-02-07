@@ -886,6 +886,14 @@
         });
     }
 
+    function formatFileSize(bytes) {
+        if (!bytes || bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + sizes[i];
+    }
+
     function uploadText(text) {
         handleFetch("/upload_text", {
             method: "POST",
@@ -1021,10 +1029,10 @@
                     fileInfoDiv.appendChild(fileExtDiv);
                 }
 
-                // 时间
-                const timeDiv = document.createElement("small");
-                timeDiv.textContent = file.time;
-                fileInfoDiv.appendChild(timeDiv);
+                // 文件大小和时间
+                const sizeTimeDiv = document.createElement("small");
+                sizeTimeDiv.textContent = formatFileSize(file.size) + " · " + file.time;
+                fileInfoDiv.appendChild(sizeTimeDiv);
 
                 // 如果是管理员，添加删除按钮（作为绝对定位元素，不影响布局）
                 if (window.currentRole === 'admin') {

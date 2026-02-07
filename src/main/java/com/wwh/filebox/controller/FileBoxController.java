@@ -296,12 +296,13 @@ public class FileBoxController {
             String mtimeS = fmt.format(d);
             String filename = fullPath.getFileName().toString();
             String ftype = FileUtils.getFileTypeCategory(filename);
+            long fileSize = f.length();
             String content = null;
             if ("text".equals(ftype)) {
                 try {
                     byte[] bytes = Files.readAllBytes(fullPath);
                     String txt = new String(bytes, StandardCharsets.UTF_8);
-                    content = txt.length() > 500 ? txt.substring(0, 500) : txt;
+                    content = txt.length() > 300 ? txt.substring(0, 300) : txt;
                 } catch (IOException e) {
                     content = null;
                 }
@@ -312,6 +313,7 @@ public class FileBoxController {
             map.put("url", "/uploads/" + y + "/" + m + "/" + filename);
             map.put("time", mtimeS);
             map.put("type", ftype);
+            map.put("size", fileSize);
             map.put("content", content);
         } catch (Exception e) {
             logger.warn("构建文件记录时出错: {}", e.getMessage(), e);
