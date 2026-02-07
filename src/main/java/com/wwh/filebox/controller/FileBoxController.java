@@ -53,18 +53,21 @@ public class FileBoxController {
         String timestamp = new SimpleDateFormat("yyyyMMdd_HHmmssSSS").format(new Date());
 
         for (MultipartFile f : files) {
-            String filename = FileUtils.safeUnicodeFilename(f.getOriginalFilename() != null ? f.getOriginalFilename() : "pasted_file");
+            logger.info("开始处理用户 {} 上传的文件: 原始名称：{}, 大小：{} bytes", username, f.getOriginalFilename(), f.getSize());
+            String filename = FileUtils.safeUnicodeFilename(f.getOriginalFilename() != null ? f.getOriginalFilename() : "pasted_"+timestamp+".file");
+            Path savePath = uploadDir.resolve(filename);
+            int counter = 1;
             int dotIndex = filename.lastIndexOf('.');
-            String savedFilename = filename;
-            if (dotIndex > 0) {
-                savedFilename = filename.substring(0, dotIndex) + "_" + timestamp + filename.substring(dotIndex);
-            } else {
-                savedFilename = filename + "_" + timestamp;
+            String baseName = dotIndex > 0 ? filename.substring(0, dotIndex) : filename;
+            String extension = dotIndex > 0 ? filename.substring(dotIndex) : "";
+
+            while (Files.exists(savePath)) {
+                String newFilename = baseName + " (" + counter + ")" + extension;
+                savePath = uploadDir.resolve(newFilename);
+                counter++;
             }
-            Path savePath = uploadDir.resolve(savedFilename);
-            //后续这里可以考虑将上传的txt文件都转成utf-8编码存储
             Files.copy(f.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
-            logger.info("用户 {} 上传文件: {}", username, savedFilename);
+            logger.info("用户 {} 上传了文件: {}", username, savePath.getFileName());
         }
 
         return ResponseEntity.ok("OK");
@@ -105,7 +108,6 @@ public class FileBoxController {
         String username = (String) session.getAttribute("username");
         if (username == null) username = "unknown";
         logger.info("用户 {} 尝试删除文件: {}", username, filePath);
-
         String role = (String) session.getAttribute("role");
         if (!"admin".equals(role)) {
             logger.warn("用户 {} 未授权删除尝试: {}", username, filePath);

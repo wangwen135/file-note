@@ -200,6 +200,7 @@
             font-weight: bold;
             color: rgba(67, 73, 78, 0.3);
             line-height: 1;
+            max-width: 100%;
         }
         .preview small {
             font-size: 11px;
@@ -1008,7 +1009,7 @@
                     let fileExt;
                     if (hasExtension) {
                         fileExt = file.filename.split('.').pop().toUpperCase();
-                        fileExt = fileExt.length <= 5 ? fileExt : fileExt.substring(0, 5);
+                        fileExt = fileExt.length <= 12 ? fileExt : fileExt.substring(0, 12);
                     } else {
                         fileExt = 'UNKNOWN';
                     }
@@ -1050,7 +1051,7 @@
     }
 
     function deleteFile(filePath, element) {
-        fetch(`/delete_file?path=${filePath}`, {
+        fetch(`/delete_file?path=${encodeURIComponent(filePath)}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
