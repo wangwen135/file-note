@@ -142,7 +142,7 @@ public class FileBoxController {
             return ResponseEntity.ok("文件删除成功");
         } else {
             logger.warn("用户 {} 删除失败: 文件未找到 - {}", username, filePath);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("文件不存在，请刷新后重试");
         }
     }
 

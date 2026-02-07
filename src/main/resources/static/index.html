@@ -581,6 +581,7 @@
     <div id="recent"></div>
 </div>
 
+<script src="js/notification.js"></script>
 <script>
     // 获取并显示用户组信息
     fetch('/api/user')
@@ -716,7 +717,7 @@
 
     sendTextBtn.addEventListener("click", () => {
         const txt = textpaste.value.trim();
-        if (!txt) return alert("请输入一些文本");
+        if (!txt) return Notify.warning("请输入一些文本");
         uploadText(txt);
     });
 
@@ -891,8 +892,9 @@
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({text}),
         }).then(resp => {
-            if (!resp.ok) alert("上传失败");
+            if (!resp.ok) Notify.error("上传失败");
             else {
+                Notify.success("文本上传成功");
                 textpaste.value = "";
                 fetchFiles();
             }
@@ -1034,11 +1036,16 @@
                     deleteBtn.onclick = (e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        if (confirm(`确定要删除文件？\n ${file.filename}`)) {
-                            // 从URL中提取文件路径
-                            const filePath = file.url.replace(/^\/uploads/, '');
-                            deleteFile(filePath, a); // 直接传递a元素
-                        }
+                        Notify.confirm({
+                            title: '确认删除',
+                            content: `确定要删除文件：${file.filename}`,
+                            okType: 'danger'
+                        }).then(result => {
+                            if (result) {
+                                const filePath = file.url.replace(/^\/uploads/, '');
+                                deleteFile(filePath, a);
+                            }
+                        });
                     };
 
                     previewDiv.appendChild(deleteBtn);
@@ -1059,7 +1066,7 @@
         })
             .then(response => {
                 if (response.ok) {
-                    alert('删除成功！');
+                    Notify.success('删除成功！');
                     // 如果提供了元素，则直接删除它
                     if (element && element.parentNode) {
                         element.parentNode.removeChild(element);
@@ -1070,11 +1077,11 @@
                 } else {
                     response.text().then(text => {
                         if (text) {
-                            alert('删除失败!\n' + text);
+                            Notify.error('删除失败!\n' + text);
                         } else {
-                            alert('删除失败!');
+                            Notify.error('删除失败!');
                         }
-                    }).catch(() => alert('删除失败!'));
+                    }).catch(() => Notify.error('删除失败!'));
                 }
             })
             .catch(err => console.error('删除错误:', err));
