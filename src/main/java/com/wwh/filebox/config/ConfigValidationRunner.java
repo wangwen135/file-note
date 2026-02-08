@@ -4,10 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.net.InetAddress;
 
 @Component
 public class ConfigValidationRunner implements CommandLineRunner {
@@ -15,10 +17,12 @@ public class ConfigValidationRunner implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(ConfigValidationRunner.class);
 
     private final GroupConfig groupConfig;
+    private final Environment environment;
 
     @Autowired
-    public ConfigValidationRunner(GroupConfig groupConfig) {
+    public ConfigValidationRunner(GroupConfig groupConfig, Environment environment) {
         this.groupConfig = groupConfig;
+        this.environment = environment;
     }
 
     @Override
@@ -96,5 +100,39 @@ public class ConfigValidationRunner implements CommandLineRunner {
         }
 
         logger.info("配置验证成功完成");
+
+        printStartupInfo();
+    }
+
+    private void printStartupInfo() {
+        String port = environment.getProperty("server.port", "8080");
+        String contextPath = environment.getProperty("server.servlet.context-path", "");
+        String address = "localhost";
+        
+        try {
+            address = InetAddress.getLocalHost().getHostAddress();
+        } catch (Exception e) {
+            logger.debug("无法获取本地主机地址，使用 localhost");
+        }
+
+        logger.info("========================================");
+        logger.info("  FileBox 应用启动成功！");
+        logger.info("========================================");
+        logger.info("访问地址:");
+        logger.info("  本地访问: http://localhost:{}{}", port, contextPath);
+        logger.info("  局域网访问: http://{}:{}{}", address, port, contextPath);
+        logger.info("========================================");
+        
+        if (groupConfig.getAnonymous() != null && groupConfig.getAnonymous().isEnabled()) {
+            logger.info("  匿名访问: 已启用");
+        } else {
+            logger.info("  匿名访问: 已禁用");
+        }
+        
+        if (groupConfig.getGroups() != null && !groupConfig.getGroups().isEmpty()) {
+            logger.info("  用户组数量: {}", groupConfig.getGroups().size());
+        }
+        
+        logger.info("========================================");
     }
 }
